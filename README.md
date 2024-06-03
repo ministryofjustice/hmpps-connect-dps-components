@@ -6,9 +6,10 @@
 
 The package assumes adherance to the standard [hmpps-template-typescript](https://github.com/ministryofjustice/hmpps-template-typescript) project.
 It requires:
- - a user object to be available on res.locals containing a token, displayName, and authSource.
+ - a user object to be available on `res.locals` containing a token, displayName, and authSource.
  - nunjucks to be setup
  - an environment variable to be set for the micro frontend components api called `COMPONENT_API_URL`
+ - to be run after helmet middleware
 
 ## Installation
 
@@ -59,59 +60,6 @@ Include the package scss within the all.scss file
   @import 'node_modules/@ministryofjustice/hmpps-connect-dps-components/dist/assets/header-bar';
 ```
 
-Ensure that the csp settings allows assets to be loaded from the fe components api. Example file:
-
-```javascript
-export default function setUpWebSecurity(): Router {
-  const router = express.Router()
-
-  // Secure code best practice - see:
-  // 1. https://expressjs.com/en/advanced/best-practice-security.html,
-  // 2. https://www.npmjs.com/package/helmet
-  router.use((_req: Request, res: Response, next: NextFunction) => {
-    res.locals.cspNonce = crypto.randomBytes(16).toString('hex')
-    next()
-  })
-
-  // This nonce allows us to use scripts with the use of the `cspNonce` local, e.g (in a Nunjucks template):
-  // <script nonce="{{ cspNonce }}">
-  // or
-  // <link href="http://example.com/" rel="stylesheet" nonce="{{ cspNonce }}">
-  // This ensures only scripts we trust are loaded, and not anything injected into the
-  // page by an attacker.
-  const scriptSrc = ["'self'", (_req: Request, res: Response) => `'nonce-${res.locals.cspNonce}'`]
-  const styleSrc = ["'self'", (_req: Request, res: Response) => `'nonce-${res.locals.cspNonce}'`]
-  const imgSrc = ["'self'", 'data:']
-  const fontSrc = ["'self'"]
-  const formAction = [`'self' ${config.apis.hmppsAuth.externalUrl} ${config.digitalPrisonServiceUrl}`]
-
-  if (config.apis.frontendComponents.url) {
-    scriptSrc.push(config.apis.frontendComponents.url)
-    styleSrc.push(config.apis.frontendComponents.url)
-    imgSrc.push(config.apis.frontendComponents.url)
-    fontSrc.push(config.apis.frontendComponents.url)
-  }
-
-  router.use(
-    helmet({
-      contentSecurityPolicy: {
-        directives: {
-          defaultSrc: ["'self'"],
-          scriptSrc,
-          styleSrc,
-          fontSrc,
-          imgSrc,
-          formAction
-        },
-      },
-      crossOriginEmbedderPolicy: true,
-    }),
-  )
-  return router
-}
-
-```
-
 Include reference to the components in your layout.njk file:
 
 ```typescript
@@ -134,9 +82,13 @@ Include reference to the components in your layout.njk file:
 {% endblock %}
 ```
 
+## CSP
+
+The package updates the content-security-middleware to include references to the fe-components API. This package should be run after Helmet to prevent this being overwritten.
+
 ## Metadata
 
-An optional parameter `includeMeta: true` can be passed into the `get` method. Setting this will result in a `feComponentsMeta` beind added to res.locals containing data the components have collected to render. This includes:
+An optional parameter `includeMeta: true` can be passed into the `get` method. Setting this will result in a `feComponentsMeta` beind added to `res.locals` containing data the components have collected to render. This includes:
 
 - activeCaseLoad (the active caseload of the user)
 - caseLoads (all caseloads the user has access to)

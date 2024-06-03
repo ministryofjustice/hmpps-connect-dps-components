@@ -2,6 +2,7 @@ import { type RequestHandler } from 'express'
 import componentApiClient from './componentApiClient'
 import { getFallbackFooter, getFallbackHeader } from './utils/fallbacks'
 import RequestOptions from './types/RequestOptions'
+import updateCsp from './utils/updateCsp'
 
 const defaultOptions: Partial<RequestOptions> = {
   logger: console,
@@ -33,6 +34,8 @@ export default function getFrontendComponents(requestOptions?: RequestOptions): 
       if (includeMeta) {
         res.locals.feComponentsMeta = meta
       }
+
+      updateCsp(res)
 
       next()
     } catch (error) {
