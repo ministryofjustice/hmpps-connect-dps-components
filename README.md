@@ -15,7 +15,7 @@ It requires:
 To install the package, run the following command:
 
 ```bash
-npm install @hmcts/hmpps-connect-dps-components
+npm install @ministryofjustice/hmpps-connect-dps-components
 ```
 
 ## Usage
@@ -144,3 +144,6 @@ An optional parameter `includeMeta: true` can be passed into the `get` method. S
 
 This can be useful e.g. for when your service needs access to activeCaseLoad information to prevent extra calls to the api and takes advantage of the caching that the micro frontend api does.
 
+## Note
+
+In the event of a failure to retrieve the components, the package will populate the html fields with fallback components. However, `feComponentsMeta` will not be populated. If you rely on the data from the micro frontend api, you should handle the data not being present within your application.
