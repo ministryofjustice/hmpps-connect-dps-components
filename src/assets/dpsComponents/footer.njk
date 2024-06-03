@@ -1,0 +1,5 @@
+{% if isPrisonUser === undefined or isPrisonUser %}
+    {% include "./prison-footer.njk" %}
+{% else %}
+    {% include "./external-footer.njk" %}
+{% endif %}
