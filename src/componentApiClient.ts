@@ -2,8 +2,9 @@ import superagent from 'superagent'
 import type bunyan from 'bunyan'
 import AvailableComponent from './types/AvailableComponent'
 import config from './config'
-import Component, { ComponentsMeta } from './types/Component'
+import Component from './types/Component'
 import TimeoutOptions from './types/TimeoutOptions'
+import { ComponentsMeta } from './types/HeaderFooterMeta'
 
 export type ComponentsApiResponse<T extends AvailableComponent[]> = Record<T[number], Component> & {
   meta: ComponentsMeta[T[number]]
