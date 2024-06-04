@@ -10,8 +10,10 @@
   "scripts": {
     "build": "tsc && npm run copy:assets",
     "test": "jest",
+    "test:ci": "jest --runInBand --passWithNoTests",
     "lint": "eslint . --cache --max-warnings 0",
-    "copy:assets": "rm -rf dist/assets && cp -r src/assets dist/assets"
+    "copy:assets": "rm -rf dist/assets && cp -r src/assets dist/assets",
+    "security_audit": "npx audit-ci --config audit-ci.json"
   },
   "repository": {
     "type": "git",
