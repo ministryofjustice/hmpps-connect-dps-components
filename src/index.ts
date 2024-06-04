@@ -2,7 +2,7 @@ import getFrontendComponents from './componentsService'
 
 export default {
   /**
-   * Returns a request handler for adding frontend components to res.locals
+   * Returns a request handler for adding header and footer frontend components to res.locals
    *
    * Adds stringified html for each component along with lists of css javascript links.
    *
@@ -17,5 +17,5 @@ export default {
    * @param requestOptions.timeoutOptions - timeout object for superagent. Defaults to 2500ms
    * @param requestOptions.includeMeta - adds feComponentsMeta to res.locals if true. Contains metadata for components including activeCaseLoad, caseLoads and available services for user
    */
-  get: getFrontendComponents,
+  getPageComponents: getFrontendComponents,
 }

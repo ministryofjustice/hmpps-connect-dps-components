@@ -18,7 +18,7 @@ export default {
     const result = await superagent
       .get(`${config.apis.feComponents.url}/components`)
       .agent(this.agent)
-      .retry(2, (err, _res) => {
+      .retry(1, (err, _res) => {
         if (err) log.info(`Retry handler found API error with ${err.code} ${err.message}`)
         return undefined // retry handler only for logging retries, not to influence retry logic
       })
