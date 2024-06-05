@@ -13,7 +13,7 @@
 
             <a class="fallback-dps-header__link fallback-dps-header__title__service-name" href="{{ authUrl }}">Digital Services</a>
 
-            {% if environmentName !== 'PRODUCTION' %}
+            {% if environmentName and environmentName !== 'PRODUCTION' %}
                 {{ govukTag({
                     text: environmentName,
                     classes: environmentNameColour
