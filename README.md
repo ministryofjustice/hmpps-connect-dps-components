@@ -2,6 +2,13 @@
 
 `hmpps-connect-dps-components` is a Node.js client library to simplify the process of incorporating global components within DPS applications.
 
+## Contents
+
+1. [Publishing to NPM](readme/publishing.md)
+
+
+## Implementation
+
 ## Prerequisites
 
 The package assumes adherance to the standard [hmpps-template-typescript](https://github.com/ministryofjustice/hmpps-template-typescript) project.
