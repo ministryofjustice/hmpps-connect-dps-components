@@ -16,7 +16,7 @@ const requiredInProduction = { requireInProduction: true }
 export default {
   apis: {
     feComponents: {
-      url: get('COMPONENT_API_URL', '', requiredInProduction),
+      url: get('COMPONENT_API_URL', 'http://fe-components', requiredInProduction),
     },
   },
 }
