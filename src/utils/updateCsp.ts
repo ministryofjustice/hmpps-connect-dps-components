@@ -3,7 +3,7 @@ import config from '../config'
 
 export default function updateCsp(res: Response) {
   const csp = res.getHeaders()['content-security-policy']
-  const allDirectives = csp.split(';')
+  const allDirectives = csp?.split(';') ?? []
   const directivesToUpdate = ['script-src', 'style-src', 'img-src', 'font-src']
 
   const updatedCspDirectives = allDirectives.map(directive => {

@@ -3,13 +3,14 @@ import { User } from '../types/User'
 import RequestOptions from '../types/RequestOptions'
 
 export function getFallbackHeader(user: User, requestOptions: RequestOptions): string {
-  const { dpsUrl, environmentName, authUrl } = requestOptions
+  const { dpsUrl, environmentName, authUrl, supportUrl } = requestOptions
   return nunjucks.render('dpsComponents/header-bar.njk', {
     isPrisonUser: user.authSource === 'nomis',
     user,
     dpsUrl,
     environmentName,
     authUrl,
+    supportUrl,
     name: initialiseName(user.displayName),
   })
 }
