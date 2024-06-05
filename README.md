@@ -35,7 +35,6 @@ To incorporate use as middleware for appropriate routes within your Express appl
 ```javascript
     app.get('*', dpsComponents.get({
       dpsUrl: config.serviceUrls.digitalPrison,
-      environmentName: 'DEV',
     })
   )
 ```
