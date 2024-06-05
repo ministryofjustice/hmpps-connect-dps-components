@@ -88,6 +88,23 @@ Include reference to the components in your layout.njk file:
 {% endblock %}
 ```
 
+## Extra calls
+
+It may be that you need to add some extra requests for the page components for pages that do not fit the normal flow of routes. e.g. in `setUpAuthentication.ts` on the `/autherror` path:
+
+```javascript
+     router.get(
+      '/autherror',
+      dpsComponents.getPageComponents({ dpsUrl: config.serviceUrls.digitalPrison }),
+      (req, res) => {
+        res.status(401)
+        return res.render('autherror')
+      },
+  )
+```
+
+This will provide a stripped down header for if there is no user object on `res.locals`.
+
 ## CSP
 
 The package updates the content-security-middleware to include references to the fe-components API. This package should be run after Helmet to prevent this being overwritten.

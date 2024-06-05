@@ -17,6 +17,17 @@ export default function getFrontendComponents(requestOptions?: RequestOptions): 
   }
 
   return async (_req, res, next) => {
+    if (!res.locals.user) {
+      logger.info('Using logged out user header')
+      res.locals.feComponents = {
+        header: getFallbackHeader(null, requestOptions),
+        footer: getFallbackFooter(null, requestOptions),
+        cssIncludes: [],
+        jsIncludes: [],
+      }
+      return next()
+    }
+
     try {
       const { header, footer, meta } = await componentApiClient.getComponents(
         res.locals.user.token,
@@ -37,7 +48,7 @@ export default function getFrontendComponents(requestOptions?: RequestOptions): 
 
       updateCsp(res)
 
-      next()
+      return next()
     } catch (error) {
       logger.error('Failed to retrieve front end components, using fallbacks')
 
@@ -48,7 +59,7 @@ export default function getFrontendComponents(requestOptions?: RequestOptions): 
         jsIncludes: [],
       }
 
-      next()
+      return next()
     }
   }
 }

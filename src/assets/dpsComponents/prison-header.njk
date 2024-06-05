@@ -32,18 +32,20 @@
             {% endif %}
         </div>
 
-        <nav aria-label="Account navigation">
-            <ul class="fallback-dps-header__navigation">
-                {% if name %}
-                    <li class="fallback-dps-header__navigation__item">
-                        <span data-qa=header-user-name>{{ name }}</span>
-                    </li>
-                {% endif %}
+        {% if user %}
+            <nav aria-label="Account navigation">
+                <ul class="fallback-dps-header__navigation">
+                    {% if name %}
+                        <li class="fallback-dps-header__navigation__item">
+                            <span data-qa=header-user-name>{{ name }}</span>
+                        </li>
+                    {% endif %}
 
-                <li class="fallback-dps-header__navigation__item">
-                    <a data-qa="signOut" class="fallback-dps-header__link fallback-dps-header__link--no-underline fallback-dps-header__sign-out" href="/sign-out">Sign out</a>
-                </li>
-            </ul>
-        </nav>
+                    <li class="fallback-dps-header__navigation__item">
+                        <a data-qa="signOut" class="fallback-dps-header__link fallback-dps-header__link--no-underline fallback-dps-header__sign-out" href="/sign-out">Sign out</a>
+                    </li>
+                </ul>
+            </nav>
+        {% endif %}
     </div>
 </header>
