@@ -154,6 +154,25 @@ describe('getFrontendComponents', () => {
           })
       })
     })
+
+    describe('when no user', () => {
+      it('should provide a fallback header', async () => {
+        return request(setupApp(null))
+          .get('/')
+          .expect('Content-Type', /json/)
+          .expect(200)
+          .expect(res => {
+            const $header = cheerio.load(res.body.feComponents.header)
+
+            expect($header('[data-qa="header-user-name"]').length).toEqual(0)
+            expect($header('a[href="http://dpsUrl"]').text()).toContain('Digital Prison Services')
+            expect($header('a[href="/sign-out"]').length).toEqual(0)
+
+            expect(res.body.feComponents.cssIncludes).toEqual([])
+            expect(res.body.feComponents.jsIncludes).toEqual([])
+          })
+      })
+    })
   })
 
   describe('meta data', () => {
