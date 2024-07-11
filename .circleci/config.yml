@@ -86,28 +86,6 @@ jobs:
           name: Publish package
           command: npm publish --access public
 
-  check_outdated:
-    executor:
-      name: hmpps/node
-      tag: << pipeline.parameters.node-version >>
-    steps:
-      - checkout
-      - restore_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
-      - run:
-          name: install-npm
-          command: 'npm ci --no-audit'
-      - run:
-          name: Check version
-          command: 'npm --version'
-      - run:
-          name: Run check
-          command: 'npm outdated typescript'
-      - slack/notify:
-          event: fail
-          channel: << pipeline.parameters.alerts-slack-channel >>
-          template: basic_fail_1
-
 workflows:
   version: 2
 
@@ -152,11 +130,6 @@ workflows:
               only:
                 - main
     jobs:
-      - hmpps/npm_outdated:
-          slack_channel: << pipeline.parameters.alerts-slack-channel >>
-          node_tag: << pipeline.parameters.node-version >>
-          context:
-            - hmpps-common-vars
       - hmpps/npm_security_audit:
           slack_channel: << pipeline.parameters.alerts-slack-channel >>
           node_tag: << pipeline.parameters.node-version >>
