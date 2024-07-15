@@ -135,18 +135,3 @@ workflows:
           node_tag: << pipeline.parameters.node-version >>
           context:
             - hmpps-common-vars
-
-  security-weekly:
-    triggers:
-      - schedule:
-          cron: "7 6 * * 1"
-          filters:
-            branches:
-              only:
-                - main
-    jobs:
-      - hmpps/veracode_policy_scan:
-          slack_channel: << pipeline.parameters.alerts-slack-channel >>
-          context:
-            - veracode-credentials
-            - hmpps-common-vars
