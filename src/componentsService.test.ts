@@ -5,15 +5,16 @@ import nock from 'nock'
 import * as cheerio from 'cheerio'
 import getFrontendComponents from './componentsService'
 import config from './config'
+import { HmppsUser, PrisonUser, ProbationUser } from './types/HmppsUser'
 
-const prisonUser = { token: 'token', authSource: 'nomis', displayName: 'Edwin Shannon' }
+const prisonUser = { token: 'token', authSource: 'nomis', displayName: 'Edwin Shannon' } as PrisonUser
 const apiResponse = {
   header: { html: 'header', css: ['header.css'], javascript: ['header.js'] },
   footer: { html: 'footer', css: ['footer.css'], javascript: ['footer.js'] },
-  meta: { meta: 'data' },
+  meta: { shared: 'data' },
 }
 
-function setupApp(user = prisonUser, includeMeta = false): express.Application {
+function setupApp(user: HmppsUser = prisonUser, includeSharedData = false): express.Application {
   const app = express()
   app.use((req, res, next) => {
     res.locals.user = user
@@ -31,11 +32,11 @@ function setupApp(user = prisonUser, includeMeta = false): express.Application {
       dpsUrl: 'http://dpsUrl',
       authUrl: 'http://authUrl',
       supportUrl: 'http://supportUrl',
-      includeMeta,
+      includeSharedData,
     }),
   )
 
-  app.get('/', (_req, res) => res.send({ feComponents: res.locals.feComponents, meta: res.locals.feComponentsMeta }))
+  app.get('/', (_req, res) => res.send({ feComponents: res.locals.feComponents }))
 
   return app
 }
@@ -111,7 +112,7 @@ describe('getFrontendComponents', () => {
       })
     })
 
-    describe('when external user', () => {
+    describe('when non-prison user', () => {
       it('should provide a fallback header', async () => {
         componentsApi
           .get('/components?component=header&component=footer')
@@ -119,7 +120,9 @@ describe('getFrontendComponents', () => {
           .get('/components?component=header&component=footer')
           .reply(500)
 
-        return request(setupApp({ token: 'token', authSource: 'delius', displayName: 'Edwin Shannon' }))
+        return request(
+          setupApp({ token: 'token', authSource: 'delius', displayName: 'Edwin Shannon' } as ProbationUser),
+        )
           .get('/')
           .expect('Content-Type', /json/)
           .expect(200)
@@ -142,7 +145,9 @@ describe('getFrontendComponents', () => {
           .get('/components?component=header&component=footer')
           .reply(500)
 
-        return request(setupApp({ token: 'token', authSource: 'delius', displayName: 'Edwin Shannon' }))
+        return request(
+          setupApp({ token: 'token', authSource: 'delius', displayName: 'Edwin Shannon' } as ProbationUser),
+        )
           .get('/')
           .expect('Content-Type', /json/)
           .expect(200)
@@ -175,8 +180,8 @@ describe('getFrontendComponents', () => {
     })
   })
 
-  describe('meta data', () => {
-    it('should include meta data if includeMeta is true', async () => {
+  describe('shared data', () => {
+    it('should include shared data if includeSharedData is true', async () => {
       componentsApi.get('/components?component=header&component=footer').reply(200, apiResponse)
 
       return request(setupApp(prisonUser, true))
@@ -188,8 +193,8 @@ describe('getFrontendComponents', () => {
             footer: 'footer',
             cssIncludes: ['header.css', 'footer.css'],
             jsIncludes: ['header.js', 'footer.js'],
+            sharedData: { shared: 'data' },
           },
-          meta: { meta: 'data' },
         })
     })
   })
