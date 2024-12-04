@@ -62,26 +62,6 @@ export default function getFrontendComponents(requestOptions?: RequestOptions): 
         jsIncludes: [],
       }
 
-      if (includeSharedData && config.apis.prisonApi.url && res.locals.user.authSource === 'nomis') {
-        try {
-          const userCaseLoads = await prisonApiClient.getUserCaseLoads(res.locals.user.token, timeoutOptions, logger)
-
-          if (userCaseLoads && Array.isArray(userCaseLoads)) {
-            const caseLoads = userCaseLoads.filter(caseload => caseload.type !== 'APP')
-            const activeCaseLoad = caseLoads.filter((caseLoad: CaseLoad) => caseLoad.currentlyActive)[0]
-
-            res.locals.feComponents.sharedData = {
-              activeCaseLoad,
-              caseLoads,
-              services: [],
-            }
-          }
-        } catch (err) {
-          logger.error(err, `Failed to retrieve case loads for: ${res.locals.user.username}`)
-          next(error)
-        }
-      }
-
       return next()
     }
   }

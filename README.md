@@ -34,6 +34,18 @@ Currently, the package provides the header and the footer component.
 To incorporate use as middleware for appropriate routes within your Express application:
 
 ```javascript
+    app.use(dpsComponents.getPageComponents({
+      dpsUrl: config.serviceUrls.digitalPrison,
+      logger,
+    })
+  )
+```
+
+**However, please 🙏 consider carefully whether you need the components for EVERY request.**
+
+It may be sufficient for you app to only request components for GET requests for example, in which case
+
+```javascript
     app.get('*', dpsComponents.getPageComponents({
       dpsUrl: config.serviceUrls.digitalPrison,
       logger,
@@ -41,7 +53,24 @@ To incorporate use as middleware for appropriate routes within your Express appl
   )
 ```
 
-Consider carefully the '*' above. This will load the components for every route. You may have routes that do not 
+may be more appropriate, especially if you use the [PRG pattern](https://en.wikipedia.org/wiki/Post/Redirect/Get) to
+handle form submission. This will help us to reduce the load on the micro frontend components API. You may wish to
+go even further, for example avoiding `GET /api...` routes that don't need components - the Prisoner Profile does
+something like this:
+
+```javascript
+    app.get(
+      /^(?!\/api|^\/$).*/,
+      dpsComponents.getPageComponents({
+        dpsUrl: config.serviceUrls.digitalPrison,
+        logger,
+      }),
+      (req, res) => {
+        res.render('prisonerProfile')
+      },
+    )
+```
+
 require the components, in which case you should be more specific about which to apply the middleware to. 
 
 There are a [number of options](./src/index.ts) available depending on your requirements.

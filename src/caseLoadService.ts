@@ -44,7 +44,7 @@ export default function retrieveCaseLoadData(caseLoadOptions?: CaseLoadOptions):
         res.locals.user.activeCaseLoadId = req.session.activeCaseLoadId
       } catch (error) {
         logger.error(error, `Failed to retrieve case loads for: ${res.locals.user.username}`)
-        next(error)
+        return next(error)
       }
     }
 
