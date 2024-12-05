@@ -1,17 +1,20 @@
 import { type RequestHandler } from 'express'
-import componentApiClient from './componentApiClient'
+import componentApiClient from './data/componentApi/componentApiClient'
 import { getFallbackFooter, getFallbackHeader } from './utils/fallbacks'
 import RequestOptions from './types/RequestOptions'
 import updateCsp from './utils/updateCsp'
+import config from './config'
+import CaseLoad from './types/CaseLoad'
+import prisonApiClient from './data/prisonApi/prisonApiClient'
 
 const defaultOptions: Partial<RequestOptions> = {
   logger: console,
   timeoutOptions: { response: 2500, deadline: 2500 },
-  includeMeta: false,
+  includeSharedData: false,
 }
 
 export default function getFrontendComponents(requestOptions?: RequestOptions): RequestHandler {
-  const { logger, timeoutOptions, includeMeta } = {
+  const { logger, timeoutOptions, includeSharedData } = {
     ...defaultOptions,
     ...requestOptions,
   }
@@ -42,8 +45,8 @@ export default function getFrontendComponents(requestOptions?: RequestOptions): 
         jsIncludes: [...header.javascript, ...footer.javascript],
       }
 
-      if (includeMeta) {
-        res.locals.feComponentsMeta = meta
+      if (includeSharedData) {
+        res.locals.feComponents.sharedData = meta
       }
 
       updateCsp(res)

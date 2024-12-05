@@ -15,7 +15,7 @@
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": true,
     "experimentalDecorators": true,
-    "typeRoots": ["./server/@types", "./node_modules/@types"],
+    "typeRoots": ["./src/@types", "./node_modules/@types"],
     "declaration": true
   },
   "exclude": ["node_modules", "assets/**/*.js", "integration_tests", "dist", "cypress.config.ts", "**/*.test.ts", "**/*.test.js"],
