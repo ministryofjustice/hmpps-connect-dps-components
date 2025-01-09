@@ -3,9 +3,6 @@ import componentApiClient from './data/componentApi/componentApiClient'
 import { getFallbackFooter, getFallbackHeader } from './utils/fallbacks'
 import RequestOptions from './types/RequestOptions'
 import updateCsp from './utils/updateCsp'
-import config from './config'
-import CaseLoad from './types/CaseLoad'
-import prisonApiClient from './data/prisonApi/prisonApiClient'
 
 const defaultOptions: Partial<RequestOptions> = {
   logger: console,

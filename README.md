@@ -1,25 +1,27 @@
 # hmpps-connect-dps-components
 
 `hmpps-connect-dps-components` is a Node.js client library to simplify the process of incorporating global components 
-within DPS applications.
+within DPS applications. We welcome feedback on this README [here](https://moj.enterprise.slack.com/archives/C04JFG3QJE6)
+in order to improve it.
 
 ## Contents
 
-1. [Publishing to NPM](readme/publishing.md)
+1. [Using the library](#using-the-library)
+2. [For library developers](#for-library-developers)
 
 
-## Implementation
+## Using the library
 
-## Prerequisites
+### Prerequisites
 
 The package assumes adherance to the standard [hmpps-template-typescript](https://github.com/ministryofjustice/hmpps-template-typescript) project.
 It requires:
  - a user object to be available on `res.locals` containing a token, displayName, and authSource.
  - nunjucks to be setup
  - an environment variable to be set for the micro frontend components api called `COMPONENT_API_URL`
- - to be run after helmet middleware
+ - to be run AFTER helmet middleware
 
-## Installation
+### Installation
 
 To install the package, run the following command:
 
@@ -27,13 +29,17 @@ To install the package, run the following command:
 npm install @ministryofjustice/hmpps-connect-dps-components
 ```
 
-## Usage
+### Usage
 
 Currently, the package provides the header and the footer component.
 
-To incorporate use as middleware for appropriate routes within your Express application:
+To incorporate use the middleware for appropriate routes within your Express application:
 
 ```javascript
+    import dpsComponents from '@ministryofjustice/hmpps-connect-dps-components'
+
+    ...
+
     app.use(dpsComponents.getPageComponents({
       dpsUrl: config.serviceUrls.digitalPrison,
       logger,
@@ -55,8 +61,9 @@ It may be sufficient for you app to only request components for GET requests for
 
 may be more appropriate, especially if you use the [PRG pattern](https://en.wikipedia.org/wiki/Post/Redirect/Get) to
 handle form submission. This will help us to reduce the load on the micro frontend components API. You may wish to
-go even further, for example avoiding `GET /api...` routes that don't need components - the Prisoner Profile does
-something like this:
+go even further, for example avoiding routes that don't need components - the Prisoner Profile does
+something like this to avoid the component API call for the following routes: `/api` (provides prisoner images) and `/` 
+(a redirect only route).
 
 ```javascript
     app.get(
@@ -70,8 +77,6 @@ something like this:
       },
     )
 ```
-
-require the components, in which case you should be more specific about which to apply the middleware to. 
 
 There are a [number of options](./src/index.ts) available depending on your requirements.
 
@@ -122,7 +127,7 @@ Include reference to the components in your layout.njk file:
 {% endblock %}
 ```
 
-## Extra calls
+### Extra calls
 
 It may be that you need to add some extra requests for the page components for pages that do not fit the normal flow 
 of routes. e.g. in `setUpAuthentication.ts` on the `/autherror` path:
@@ -140,12 +145,12 @@ of routes. e.g. in `setUpAuthentication.ts` on the `/autherror` path:
 
 This will provide a stripped down header for if there is no user object on `res.locals`.
 
-## CSP
+### CSP
 
 The package updates the content-security-middleware to include references to the fe-components API. This package should 
 be run after Helmet to prevent this being overwritten.
 
-## Shared Data 
+### Shared Data 
 
 An optional parameter `includeSharedData: true` can be passed into the `get` method. Setting this will result in a 
 `sharedData` object being added to `res.locals.feComponents` containing data the components have collected to render. 
@@ -158,7 +163,7 @@ This includes:
 This can be useful e.g. for when your service needs access to activeCaseLoad information to prevent extra calls to the 
 api and takes advantage of the caching that the micro frontend api does.
 
-## Populating res.locals.user with the shared case load data
+### Populating res.locals.user with the shared case load data
 
 Many services typically add case load information to the user object on `res.locals`. This library provides some 
 optional middleware which populates:
@@ -178,8 +183,16 @@ app.use(dpsComponents.retrieveCaseLoadData({ logger }))
 
 Again there are a [number of options](./src/index.ts) available depending on your requirements.
 
-## Note
+This middleware checks the `res.locals.user.authSource` so ensure that any mock auth data used in tests includes 
+`auth_source: 'nomis'` in the response.
+
+### Note
 
 In the event of a failure to retrieve the components, the package will populate the html fields with fallback components.
 The `feComponents.sharedData` will not be populated, but if you use the retrieveCaseLoadData middleware (see above) it 
 will either take case load data from the cache or make a call to the Prison API to retrieve it.  
+
+
+## For library developers:
+
+1. [Publishing to NPM](readme/publishing.md)
