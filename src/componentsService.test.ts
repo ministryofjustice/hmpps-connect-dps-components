@@ -8,13 +8,24 @@ import config from './config'
 import { HmppsUser, PrisonUser, ProbationUser } from './types/HmppsUser'
 
 const prisonUser = { token: 'token', authSource: 'nomis', displayName: 'Edwin Shannon' } as PrisonUser
+const probationUser = { token: 'token', authSource: 'delius', displayName: 'Edwin Shannon' } as ProbationUser
 const apiResponse = {
   header: { html: 'header', css: ['header.css'], javascript: ['header.js'] },
   footer: { html: 'footer', css: ['footer.css'], javascript: ['footer.js'] },
   meta: { shared: 'data' },
 }
 
-function setupApp(user: HmppsUser = prisonUser, includeSharedData = false): express.Application {
+function setupApp(
+  {
+    user,
+    includeSharedData,
+    useFallbacksByDefault,
+  }: {
+    user?: HmppsUser
+    includeSharedData?: boolean
+    useFallbacksByDefault?: boolean
+  } = { user: prisonUser, includeSharedData: false, useFallbacksByDefault: false },
+): express.Application {
   const app = express()
   app.use((req, res, next) => {
     res.locals.user = user
@@ -33,6 +44,7 @@ function setupApp(user: HmppsUser = prisonUser, includeSharedData = false): expr
       authUrl: 'http://authUrl',
       supportUrl: 'http://supportUrl',
       includeSharedData,
+      useFallbacksByDefault,
     }),
   )
 
@@ -108,6 +120,9 @@ describe('getFrontendComponents', () => {
             expect(res.body.feComponents.footer.trim()).toEqual(
               '<footer class="govuk-footer govuk-!-display-none-print"></footer>',
             )
+
+            expect(res.body.feComponents.cssIncludes).toEqual([])
+            expect(res.body.feComponents.jsIncludes).toEqual([])
           })
       })
     })
@@ -120,9 +135,7 @@ describe('getFrontendComponents', () => {
           .get('/components?component=header&component=footer')
           .reply(500)
 
-        return request(
-          setupApp({ token: 'token', authSource: 'delius', displayName: 'Edwin Shannon' } as ProbationUser),
-        )
+        return request(setupApp({ user: probationUser }))
           .get('/')
           .expect('Content-Type', /json/)
           .expect(200)
@@ -145,9 +158,7 @@ describe('getFrontendComponents', () => {
           .get('/components?component=header&component=footer')
           .reply(500)
 
-        return request(
-          setupApp({ token: 'token', authSource: 'delius', displayName: 'Edwin Shannon' } as ProbationUser),
-        )
+        return request(setupApp({ user: probationUser }))
           .get('/')
           .expect('Content-Type', /json/)
           .expect(200)
@@ -156,13 +167,16 @@ describe('getFrontendComponents', () => {
 
             expect($header('a[href="http://authUrl/terms"]').text()).toContain('Terms and conditions')
             expect($header('a[href="http://supportUrl"]').text()).toContain('Feedback and support')
+
+            expect(res.body.feComponents.cssIncludes).toEqual([])
+            expect(res.body.feComponents.jsIncludes).toEqual([])
           })
       })
     })
 
     describe('when no user', () => {
       it('should provide a fallback header', async () => {
-        return request(setupApp(null))
+        return request(setupApp({ user: null }))
           .get('/')
           .expect('Content-Type', /json/)
           .expect(200)
@@ -177,6 +191,59 @@ describe('getFrontendComponents', () => {
             expect(res.body.feComponents.jsIncludes).toEqual([])
           })
       })
+
+      it('should provide a fallback footer', async () => {
+        return request(setupApp({ user: null }))
+          .get('/')
+          .expect('Content-Type', /json/)
+          .expect(200)
+          .expect(res => {
+            expect(res.body.feComponents.footer.trim()).toEqual(
+              '<footer class="govuk-footer govuk-!-display-none-print"></footer>',
+            )
+
+            expect(res.body.feComponents.cssIncludes).toEqual([])
+            expect(res.body.feComponents.jsIncludes).toEqual([])
+          })
+      })
+    })
+
+    describe('when configured to only use fallbacks', () => {
+      it('should provide a fallback header', async () => {
+        componentsApi.get('/components?component=header&component=footer').reply(200, apiResponse)
+
+        return request(setupApp({ user: prisonUser, useFallbacksByDefault: true }))
+          .get('/')
+          .expect('Content-Type', /json/)
+          .expect(200)
+          .expect(res => {
+            const $header = cheerio.load(res.body.feComponents.header)
+
+            expect($header('[data-qa="header-user-name"]').text()).toContain('E. Shannon')
+            expect($header('a[href="http://dpsUrl"]').text()).toContain('Digital Prison Services')
+            expect($header('a[href="/sign-out"]').text()).toContain('Sign out')
+
+            expect(res.body.feComponents.cssIncludes).toEqual([])
+            expect(res.body.feComponents.jsIncludes).toEqual([])
+          })
+      })
+
+      it('should provide a fallback footer', async () => {
+        componentsApi.get('/components?component=header&component=footer').reply(200, apiResponse)
+
+        return request(setupApp({ user: prisonUser, useFallbacksByDefault: true }))
+          .get('/')
+          .expect('Content-Type', /json/)
+          .expect(200)
+          .expect(res => {
+            expect(res.body.feComponents.footer.trim()).toEqual(
+              '<footer class="govuk-footer govuk-!-display-none-print"></footer>',
+            )
+
+            expect(res.body.feComponents.cssIncludes).toEqual([])
+            expect(res.body.feComponents.jsIncludes).toEqual([])
+          })
+      })
     })
   })
 
@@ -184,7 +251,7 @@ describe('getFrontendComponents', () => {
     it('should include shared data if includeSharedData is true', async () => {
       componentsApi.get('/components?component=header&component=footer').reply(200, apiResponse)
 
-      return request(setupApp(prisonUser, true))
+      return request(setupApp({ user: prisonUser, includeSharedData: true }))
         .get('/')
         .expect('Content-Type', /json/)
         .expect(200, {

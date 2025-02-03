@@ -8,5 +8,6 @@ export default interface RequestOptions {
   environmentName?: 'DEV' | 'PRE-PRODUCTION' | 'PRODUCTION'
   logger?: bunyan | typeof console
   includeSharedData?: boolean
+  useFallbacksByDefault?: boolean
   timeoutOptions?: TimeoutOptions
 }

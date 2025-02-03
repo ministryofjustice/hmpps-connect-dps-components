@@ -3,28 +3,40 @@ import componentApiClient from './data/componentApi/componentApiClient'
 import { getFallbackFooter, getFallbackHeader } from './utils/fallbacks'
 import RequestOptions from './types/RequestOptions'
 import updateCsp from './utils/updateCsp'
+import { HmppsUser } from './types/HmppsUser'
 
 const defaultOptions: Partial<RequestOptions> = {
   logger: console,
   timeoutOptions: { response: 2500, deadline: 2500 },
   includeSharedData: false,
+  useFallbacksByDefault: false,
 }
 
 export default function getFrontendComponents(requestOptions?: RequestOptions): RequestHandler {
-  const { logger, timeoutOptions, includeSharedData } = {
+  const { logger, timeoutOptions, includeSharedData, useFallbacksByDefault } = {
     ...defaultOptions,
     ...requestOptions,
   }
 
   return async (_req, res, next) => {
-    if (!res.locals.user) {
-      logger.info('Using logged out user header')
+    const useFallbacks = (user: HmppsUser) => {
       res.locals.feComponents = {
-        header: getFallbackHeader(null, requestOptions),
-        footer: getFallbackFooter(null, requestOptions),
+        header: getFallbackHeader(user, requestOptions),
+        footer: getFallbackFooter(user, requestOptions),
         cssIncludes: [],
         jsIncludes: [],
       }
+    }
+
+    if (!res.locals.user) {
+      logger.info('Using fallback frontend components when no user in context')
+      useFallbacks(null)
+      return next()
+    }
+
+    if (useFallbacksByDefault) {
+      logger.info('Using fallback frontend components by default')
+      useFallbacks(res.locals.user)
       return next()
     }
 
@@ -51,14 +63,7 @@ export default function getFrontendComponents(requestOptions?: RequestOptions): 
       return next()
     } catch (error) {
       logger.error('Failed to retrieve front end components, using fallbacks')
-
-      res.locals.feComponents = {
-        header: getFallbackHeader(res.locals.user, requestOptions),
-        footer: getFallbackFooter(res.locals.user, requestOptions),
-        cssIncludes: [],
-        jsIncludes: [],
-      }
-
+      useFallbacks(res.locals.user)
       return next()
     }
   }

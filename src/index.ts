@@ -17,6 +17,7 @@ export default {
    * @param requestOptions.logger - pass in the bunyen logger if you want to use it. Falls back to console if not provided
    * @param requestOptions.timeoutOptions - timeout object for superagent. Defaults to 2500ms
    * @param requestOptions.includeSharedData - adds sharedData to res.locals.feComponents if true. Contains data that the components have collected in order to render, including: activeCaseLoad, caseLoads and available services for user
+   * @param requestOptions.useFallbacksByDefault - if your service requires only the basic fallback header and footer to be used by default, set this to true, it will not attempt to fetch the components from the frontend components service
    */
   getPageComponents,
 
