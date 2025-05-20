@@ -120,18 +120,3 @@ workflows:
               ignore: /.*/
           requires:
             - unit_test
-
-  security:
-    triggers:
-      - schedule:
-          cron: "9 6 * * 1-5"
-          filters:
-            branches:
-              only:
-                - main
-    jobs:
-      - hmpps/npm_security_audit:
-          slack_channel: << pipeline.parameters.alerts-slack-channel >>
-          node_tag: << pipeline.parameters.node-version >>
-          context:
-            - hmpps-common-vars
