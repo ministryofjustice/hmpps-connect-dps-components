@@ -170,6 +170,7 @@ optional middleware which populates:
 - `res.locals.user.caseLoads` with all case loads the user has access to
 - `res.locals.user.activeCaseLoad` with the active case load of the user
 - `res.locals.user.activeCaseLoadId` with the id of the active case load
+- `res.locals.user.allocationJobResponsibilities` with the job responsibilities for which the user may have prisoners allocated to them, such as `KEY_WORKER` and `PERSONAL_OFFICER` responsibilities
  
 It uses the `sharedData` object if it is present and caches in `req.session` so that any subsequent routes that do not 
 use the component middleware can still use the data. If there is no data in the cache, it will fall back to making a 
