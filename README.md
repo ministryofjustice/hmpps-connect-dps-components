@@ -159,6 +159,7 @@ This includes:
 - activeCaseLoad (the active caseload of the user)
 - caseLoads (all caseloads the user has access to)
 - services (information on services the user has access to used for global navigation)
+- allocationJobResponsibilities (the allocation policy codes the user has the associated job responsibility for. Allocation policy codes are: `KEY_WORKER`, meaning the user is a key worker and `PERSONAL_OFFICER`, meaning the user is a personal officer.)
 
 This can be useful e.g. for when your service needs access to activeCaseLoad information to prevent extra calls to the 
 api and takes advantage of the caching that the micro frontend api does.
