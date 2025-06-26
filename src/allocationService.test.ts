@@ -3,8 +3,10 @@ import { PrisonUser } from './types/HmppsUser'
 import retrieveAllocationJobResponsibilities from './allocationService'
 import allocationsApiClient from './data/allocationsApi/allocationsApiClient'
 import { AllocationJobResponsibility } from './types/AllocationJobResponsibility'
+import config from './config'
 
 jest.mock('./data/allocationsApi/allocationsApiClient')
+jest.mock('./config')
 
 describe('retrieveCaseLoadData', () => {
   let req: Request
@@ -17,8 +19,15 @@ describe('retrieveCaseLoadData', () => {
 
   const allocationJobResponsibilities: AllocationJobResponsibility[] = ['KEY_WORKER']
 
+  const configMock = config as jest.Mocked<typeof config>
+
   beforeEach(() => {
     jest.resetAllMocks()
+    configMock.apis = {
+      feComponents: { url: 'url' },
+      prisonApi: { url: 'url' },
+      allocationsApi: { url: 'url' },
+    }
   })
 
   it('Should use shared data from feComponents and refresh the cache', async () => {

@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import { PrisonUser } from './types/HmppsUser'
 import retrieveCaseLoadData from './caseLoadService'
 import prisonApiClient from './data/prisonApi/prisonApiClient'
+import config from './config'
 
 jest.mock('./data/prisonApi/prisonApiClient')
 
@@ -35,8 +36,15 @@ describe('retrieveCaseLoadData', () => {
 
   const prisonApiClientMock = prisonApiClient as jest.Mocked<typeof prisonApiClient>
 
+  const configMock = config as jest.Mocked<typeof config>
+
   beforeEach(() => {
     jest.resetAllMocks()
+    configMock.apis = {
+      feComponents: { url: 'url' },
+      prisonApi: { url: 'url' },
+      allocationsApi: { url: 'url' },
+    }
   })
 
   it('Should use shared data from feComponents and refresh the cache', async () => {
