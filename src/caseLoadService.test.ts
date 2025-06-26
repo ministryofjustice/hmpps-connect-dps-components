@@ -174,4 +174,15 @@ describe('retrieveCaseLoadData', () => {
       'User session required in order to cache case loads',
     )
   })
+
+  it('Should throw an error if Prison API URL is not defined', async () => {
+    configMock.apis = {
+      ...configMock.apis,
+      prisonApi: { url: undefined },
+    }
+
+    expect(retrieveCaseLoadData).toThrow(
+      'Environment variable PRISON_API_URL must be defined for this middleware to work correctly',
+    )
+  })
 })

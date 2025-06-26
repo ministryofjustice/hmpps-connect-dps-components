@@ -115,4 +115,15 @@ describe('retrieveCaseLoadData', () => {
       'User session required in order to cache allocation job responsibilities',
     )
   })
+
+  it('Should throw an error if Allocations API URL is not defined', async () => {
+    configMock.apis = {
+      ...configMock.apis,
+      allocationsApi: { url: undefined },
+    }
+
+    expect(retrieveAllocationJobResponsibilities).toThrow(
+      'Environment variable ALLOCATIONS_API_URL must be defined for this middleware to work correctly',
+    )
+  })
 })
