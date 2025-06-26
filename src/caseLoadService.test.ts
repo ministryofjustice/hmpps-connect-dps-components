@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import { PrisonUser } from './types/HmppsUser'
 import retrieveCaseLoadData from './caseLoadService'
 import prisonApiClient from './data/prisonApi/prisonApiClient'
+import config from './config'
 
 jest.mock('./data/prisonApi/prisonApiClient')
 
@@ -35,8 +36,15 @@ describe('retrieveCaseLoadData', () => {
 
   const prisonApiClientMock = prisonApiClient as jest.Mocked<typeof prisonApiClient>
 
+  const configMock = config as jest.Mocked<typeof config>
+
   beforeEach(() => {
     jest.resetAllMocks()
+    configMock.apis = {
+      feComponents: { url: 'url' },
+      prisonApi: { url: 'url' },
+      allocationsApi: { url: 'url' },
+    }
   })
 
   it('Should use shared data from feComponents and refresh the cache', async () => {
@@ -164,6 +172,17 @@ describe('retrieveCaseLoadData', () => {
 
     await expect(retrieveCaseLoadData({})(req, res, next)).rejects.toThrow(
       'User session required in order to cache case loads',
+    )
+  })
+
+  it('Should throw an error if Prison API URL is not defined', async () => {
+    configMock.apis = {
+      ...configMock.apis,
+      prisonApi: { url: undefined },
+    }
+
+    expect(retrieveCaseLoadData).toThrow(
+      'Environment variable PRISON_API_URL must be defined for this middleware to work correctly',
     )
   })
 })

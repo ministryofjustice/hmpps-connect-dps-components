@@ -159,6 +159,7 @@ This includes:
 - activeCaseLoad (the active caseload of the user)
 - caseLoads (all caseloads the user has access to)
 - services (information on services the user has access to used for global navigation)
+- allocationJobResponsibilities (the allocation policy codes the user has the associated job responsibility for. Allocation policy codes are: `KEY_WORKER`, meaning the user is a key worker and `PERSONAL_OFFICER`, meaning the user is a personal officer.)
 
 This can be useful e.g. for when your service needs access to activeCaseLoad information to prevent extra calls to the 
 api and takes advantage of the caching that the micro frontend api does.
@@ -170,7 +171,7 @@ optional middleware which populates:
 - `res.locals.user.caseLoads` with all case loads the user has access to
 - `res.locals.user.activeCaseLoad` with the active case load of the user
 - `res.locals.user.activeCaseLoadId` with the id of the active case load
- 
+
 It uses the `sharedData` object if it is present and caches in `req.session` so that any subsequent routes that do not 
 use the component middleware can still use the data. If there is no data in the cache, it will fall back to making a 
 call to Prison API to retrieve the data using the user token.
@@ -185,6 +186,30 @@ Again there are a [number of options](./src/index.ts) available depending on you
 
 This middleware checks the `res.locals.user.authSource` so ensure that any mock auth data used in tests includes 
 `auth_source: 'nomis'` in the response.
+
+### Populating res.locals.user with the shared allocation job responsibilities
+
+This library also provides an optional middleware which populates:
+- `res.locals.user.allocationJobResponsibilities` the allocation policy codes the user has the associated job responsibility for. Allocation policy codes are: `KEY_WORKER`, meaning the user is a key worker and `PERSONAL_OFFICER`, meaning the user is a personal officer.
+
+Similar to shared case load data, it uses the `sharedData` object if it is present and caches in `req.session` so that any subsequent routes that do not
+use the component middleware can still use the data. If there is no data in the cache, it will fall back to making a
+call to Allocations API to retrieve the data using the user token.
+
+To enable this, add the middleware after the component middleware as follows:
+
+```javascript
+app.use(dpsComponents.retrieveAllocationJobResponsibilities({ logger }))
+```
+
+This should go after `dpsComponents.retrieveCaseLoadData` so that `res.locals.user.activeCaseLoadId` will be populated.
+It also requires `ALLOCATIONS_API_URL` to be configured in the environment variables.
+
+Again there are a [number of options](./src/index.ts) available depending on your requirements.
+
+This middleware checks the `res.locals.user.authSource` so ensure that any mock auth data used in tests includes
+`auth_source: 'nomis'` in the response. It also checks the `res.locals.user.activeCaseLoadId`, which is required for retrieving allocation job responsibilities.
+
 
 ### Note
 

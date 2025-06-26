@@ -1,5 +1,6 @@
 import getPageComponents from './componentsService'
 import retrieveCaseLoadData from './caseLoadService'
+import retrieveAllocationJobResponsibilities from './allocationService'
 
 export default {
   /**
@@ -44,4 +45,25 @@ export default {
    * @param caseLoadOptions.timeoutOptions - timeout object for superagent. Defaults to 2500ms
    */
   retrieveCaseLoadData,
+
+  /**
+   * Ensures that:
+   * - `res.locals.user.allocationJobResponsibilities`
+   * is set for NOMIS users (or will propagate an error).  It will also attempt to cache in `req.session.allocationJobResponsibilities`
+   * (this is so that extra requests to Allocations API are not required for routes that do not need frontend components,
+   * such as image data, or if the frontend component API errors or is temporarily down).
+   *
+   * It will do the following in priority order, and will attempt the next if the previous fails:
+   *
+   *  * Use values from `res.feComponents.sharedData` if present (and cache in `req.session`)
+   *  * Use cached data from `req.session`
+   *  * Fetch data from Allocations API as a fallback and cache in `req.session`
+   *
+   * Expects res.locals.user to be set up inline with the hmpps-template-typescript project
+   *
+   * @param caseLoadOptions - config object for request
+   * @param caseLoadOptions.logger - pass in the bunyen logger if you want to use it. Falls back to console if not provided
+   * @param caseLoadOptions.timeoutOptions - timeout object for superagent. Defaults to 2500ms
+   */
+  retrieveAllocationJobResponsibilities,
 }

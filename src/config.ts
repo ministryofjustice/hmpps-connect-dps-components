@@ -21,5 +21,8 @@ export default {
     prisonApi: {
       url: get('PRISON_API_URL', null),
     },
+    allocationsApi: {
+      url: get('ALLOCATIONS_API_URL', null),
+    },
   },
 }
