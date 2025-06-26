@@ -1,6 +1,7 @@
 import { type RequestHandler } from 'express'
 import CaseLoadOptions from './types/CaseLoadOptions'
 import allocationsApiClient from './data/allocationsApi/allocationsApiClient'
+import config from './config'
 
 const defaultOptions: CaseLoadOptions = {
   logger: console,
@@ -12,6 +13,9 @@ export default function retrieveAllocationJobResponsibilities(options?: CaseLoad
     ...defaultOptions,
     ...options,
   }
+
+  if (!config.apis.allocationsApi.url)
+    throw new Error('Environment variable ALLOCATIONS_API_URL must be defined for this middleware to work correctly')
 
   return async (req, res, next) => {
     if (!req.session) throw new Error('User session required in order to cache allocation job responsibilities')

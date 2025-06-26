@@ -2,6 +2,7 @@ import { type RequestHandler } from 'express'
 import CaseLoadOptions from './types/CaseLoadOptions'
 import CaseLoad from './types/CaseLoad'
 import prisonApiClient from './data/prisonApi/prisonApiClient'
+import config from './config'
 
 const defaultOptions: CaseLoadOptions = {
   logger: console,
@@ -13,6 +14,9 @@ export default function retrieveCaseLoadData(caseLoadOptions?: CaseLoadOptions):
     ...defaultOptions,
     ...caseLoadOptions,
   }
+
+  if (!config.apis.prisonApi.url)
+    throw new Error('Environment variable PRISON_API_URL must be defined for this middleware to work correctly')
 
   return async (req, res, next) => {
     if (!req.session) throw new Error('User session required in order to cache case loads')
