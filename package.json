@@ -90,6 +90,6 @@
     "@types/node": "^20.17.48",
     "@types/nunjucks": "^3.2.6",
     "nunjucks": "^3.2.4",
-    "superagent": "^9.0.2"
+    "superagent": "^10.2.2"
   }
 }
