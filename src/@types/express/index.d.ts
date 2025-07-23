@@ -3,7 +3,6 @@ import HeaderFooterSharedData from '../../types/HeaderFooterSharedData'
 import { HmppsUser } from '../../types/HmppsUser'
 import { AllocationJobResponsibility } from '../../types/AllocationJobResponsibility'
 
-// eslint-disable-next-line import/prefer-default-export
 export declare global {
   namespace Express {
     interface SessionData {

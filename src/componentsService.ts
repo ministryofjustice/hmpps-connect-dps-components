@@ -61,7 +61,7 @@ export default function getFrontendComponents(requestOptions?: RequestOptions): 
       updateCsp(res)
 
       return next()
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to retrieve front end components, using fallbacks')
       useFallbacks(res.locals.user)
       return next()
