@@ -16,7 +16,7 @@ export function getFallbackHeader(user: HmppsUser | null, requestOptions: Reques
   })
 }
 
-export function getFallbackFooter(user: HmppsUser, requestOptions: RequestOptions): string {
+export function getFallbackFooter(user: HmppsUser | null, requestOptions: RequestOptions): string {
   const { supportUrl, authUrl } = requestOptions
   return nunjucks.render('dpsComponents/footer.njk', {
     isPrisonUser: !user || user.authSource === 'nomis',

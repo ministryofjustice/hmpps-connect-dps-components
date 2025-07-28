@@ -1,23 +1,18 @@
 {
-  "compileOnSave": true,
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@tsconfig/node22/tsconfig.json",
   "compilerOptions": {
-    "target": "es2018",
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "rootDir": "./src",
     "outDir": "./dist",
-    "sourceMap": true,
-    "skipLibCheck": true,
-    "noEmit": false,
-    "allowJs": true,
-    "checkJs": true,
+    "declarationDir": "./dist",
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
     "resolveJsonModule": true,
-    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "noImplicitAny": true,
-    "experimentalDecorators": true,
-    "typeRoots": ["./src/@types", "./node_modules/@types"],
-    "declaration": true
+    "declaration": true,
+    "module": "ESNext",
+    "moduleResolution": "node"
   },
-  "exclude": ["node_modules", "assets/**/*.js", "integration_tests", "dist", "cypress.config.ts", "**/*.test.ts", "**/*.test.js"],
-  "include": ["**/*.js", "**/*.ts"]
+  "include": ["./src/**/*.ts"]
 }

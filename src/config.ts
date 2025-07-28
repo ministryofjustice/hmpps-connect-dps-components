@@ -1,6 +1,6 @@
 const production = process.env.NODE_ENV === 'production'
 
-function get(name: string, fallback: string, options = { requireInProduction: false }) {
+function get(name: string, fallback: string | undefined | null, options = { requireInProduction: false }) {
   const envVarValue = process.env[name]
   if (envVarValue !== undefined) {
     return envVarValue

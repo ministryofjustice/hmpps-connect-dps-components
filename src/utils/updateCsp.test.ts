@@ -13,7 +13,7 @@ describe('updateCsp', () => {
           "default-src 'self';script-src 'self';style-src 'self';img-src 'self';font-src 'self'",
       }),
       set: jest.fn(),
-    } as undefined as Response
+    } as unknown as Response
 
     updateCsp(res)
 
@@ -29,7 +29,7 @@ describe('updateCsp', () => {
         'content-security-policy': "default-src 'self'",
       }),
       set: jest.fn(),
-    } as undefined as Response
+    } as unknown as Response
 
     updateCsp(res)
 
@@ -46,7 +46,7 @@ describe('updateCsp', () => {
           "default-src 'self';script-src 'self' http://fe-components;style-src 'self' http://fe-components;img-src 'self' http://fe-components;font-src 'self'",
       }),
       set: jest.fn(),
-    } as undefined as Response
+    } as unknown as Response
 
     updateCsp(res)
 

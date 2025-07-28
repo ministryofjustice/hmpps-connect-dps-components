@@ -3,7 +3,9 @@ import nunjucks from 'nunjucks'
 import request from 'supertest'
 import nock from 'nock'
 import * as cheerio from 'cheerio'
-import getFrontendComponents from './componentsService'
+import { AuthenticationClient } from '@ministryofjustice/hmpps-auth-clients'
+import Logger from 'bunyan'
+import ComponentsService from './componentsService'
 import config from './config'
 import { HmppsUser, PrisonUser, ProbationUser } from './types/HmppsUser'
 
@@ -28,7 +30,7 @@ function setupApp(
 ): express.Application {
   const app = express()
   app.use((req, res, next) => {
-    res.locals.user = user
+    res.locals.user = user as HmppsUser
     next()
   })
 
@@ -38,8 +40,35 @@ function setupApp(
     { autoescape: true, express: app },
   )
 
+  const loggerMock = {
+    info: jest.fn(),
+    error: jest.fn(),
+    warning: jest.fn(),
+  } as unknown as Logger
+
+  const authenticationClient = new AuthenticationClient(
+    {
+      systemClientId: '',
+      systemClientSecret: '',
+      url: 'http://authUrl',
+      timeout: { deadline: 2500, response: 2500 },
+      agent: { timeout: 2500 },
+    },
+    loggerMock,
+  )
+
+  const componentsService = ComponentsService.create({
+    logger: loggerMock,
+    authenticationClient,
+    componentApiConfig: {
+      url: config.apis.feComponents.url as string,
+      timeout: { deadline: 2500, response: 2500 },
+      agent: { timeout: 2500 },
+    },
+  })
+
   app.use(
-    getFrontendComponents({
+    componentsService.getFrontendComponents({
       dpsUrl: 'http://dpsUrl',
       authUrl: 'http://authUrl',
       supportUrl: 'http://supportUrl',
@@ -54,9 +83,12 @@ function setupApp(
 }
 
 let componentsApi: nock.Scope
+let authApi: nock.Scope
 
 beforeEach(() => {
-  componentsApi = nock(config.apis.feComponents.url)
+  componentsApi = nock(config.apis.feComponents.url as string)
+  authApi = nock('http://authUrl')
+  authApi.post('/oauth/token').reply(200, { access_token: 'token-1', expires_in: 300 })
 })
 
 afterEach(() => {
@@ -176,7 +208,7 @@ describe('getFrontendComponents', () => {
 
     describe('when no user', () => {
       it('should provide a fallback header', async () => {
-        return request(setupApp({ user: null }))
+        return request(setupApp({ user: undefined }))
           .get('/')
           .expect('Content-Type', /json/)
           .expect(200)
@@ -193,7 +225,7 @@ describe('getFrontendComponents', () => {
       })
 
       it('should provide a fallback footer', async () => {
-        return request(setupApp({ user: null }))
+        return request(setupApp({ user: undefined }))
           .get('/')
           .expect('Content-Type', /json/)
           .expect(200)

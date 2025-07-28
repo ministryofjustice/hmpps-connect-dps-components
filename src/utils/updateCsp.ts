@@ -8,7 +8,10 @@ export default function updateCsp(res: Response) {
 
   const updatedCspDirectives = allDirectives.map(directive => {
     // if directive is not in cspToUpdate or includes fe components url already return as is
-    if (directive.includes(config.apis.feComponents.url) || !directivesToUpdate.some(p => directive.includes(`${p} `)))
+    if (
+      directive.includes(config.apis.feComponents.url as string) ||
+      !directivesToUpdate.some(p => directive.includes(`${p} `))
+    )
       return directive
 
     // if directive is in cspToUpdate and does not have fe components url, add in
