@@ -4,9 +4,6 @@ import { PrisonUser } from './types/HmppsUser'
 import AllocationService from './allocationService'
 import AllocationsApiClient from './data/allocationsApi/allocationsApiClient'
 import { AllocationJobResponsibility } from './types/AllocationJobResponsibility'
-import config from './config'
-
-jest.mock('./config')
 
 describe('retrieveCaseLoadData', () => {
   let req: Request
@@ -20,8 +17,6 @@ describe('retrieveCaseLoadData', () => {
 
   const allocationJobResponsibilities: AllocationJobResponsibility[] = ['KEY_WORKER']
 
-  const configMock = config as jest.Mocked<typeof config>
-
   const loggerMock = {
     info: jest.fn(),
     error: jest.fn(),
@@ -29,11 +24,6 @@ describe('retrieveCaseLoadData', () => {
 
   beforeEach(() => {
     jest.resetAllMocks()
-    configMock.apis = {
-      feComponents: { url: 'url' },
-      prisonApi: { url: 'url' },
-      allocationsApi: { url: 'url' },
-    }
 
     allocationsApiClientMock = {
       getStaffAllocationPolicies: jest.fn(),
@@ -123,17 +113,6 @@ describe('retrieveCaseLoadData', () => {
 
     await expect(allocationService.retrieveAllocationJobResponsibilities()(req, res, next)).rejects.toThrow(
       'User session required in order to cache allocation job responsibilities',
-    )
-  })
-
-  it('Should throw an error if Allocations API URL is not defined', async () => {
-    configMock.apis = {
-      ...configMock.apis,
-      allocationsApi: { url: undefined as unknown as string },
-    }
-
-    expect(allocationService.retrieveAllocationJobResponsibilities).toThrow(
-      'Environment variable ALLOCATIONS_API_URL must be defined for this middleware to work correctly',
     )
   })
 })

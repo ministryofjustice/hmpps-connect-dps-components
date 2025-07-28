@@ -1,6 +1,5 @@
 import { type RequestHandler } from 'express'
 import { ApiConfig, AuthenticationClient } from '@ministryofjustice/hmpps-rest-client'
-import config from './config'
 import AllocationsApiClient from './data/allocationsApi/allocationsApiClient'
 import { ConnectDpsComponentLogger } from './types/ConnectDpsComponentLogger'
 
@@ -23,9 +22,6 @@ export default class AllocationService {
   }
 
   public retrieveAllocationJobResponsibilities(): RequestHandler {
-    if (!config.apis.allocationsApi.url)
-      throw new Error('Environment variable ALLOCATIONS_API_URL must be defined for this middleware to work correctly')
-
     return async (req, res, next) => {
       if (!req.session) throw new Error('User session required in order to cache allocation job responsibilities')
       if (!res.locals.user.token)

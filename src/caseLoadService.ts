@@ -1,7 +1,6 @@
 import { type RequestHandler } from 'express'
 import { ApiConfig, AuthenticationClient } from '@ministryofjustice/hmpps-rest-client'
 import CaseLoad from './types/CaseLoad'
-import config from './config'
 import PrisonApiClient from './data/prisonApi/prisonApiClient'
 import { ConnectDpsComponentLogger } from './types/ConnectDpsComponentLogger'
 
@@ -24,9 +23,6 @@ export default class CaseLoadService {
   }
 
   retrieveCaseLoadData(): RequestHandler {
-    if (!config.apis.prisonApi.url)
-      throw new Error('Environment variable PRISON_API_URL must be defined for this middleware to work correctly')
-
     return async (req, res, next) => {
       if (!req.session) throw new Error('User session required in order to cache case loads')
 

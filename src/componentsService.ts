@@ -17,6 +17,7 @@ const defaultOptions: Partial<RequestOptions> = {
 export default class ComponentsService {
   constructor(
     private readonly logger: ConnectDpsComponentLogger,
+    private readonly componentApiConfig: ApiConfig,
     private readonly componentApiClient: ComponentApiClient,
   ) {}
 
@@ -29,7 +30,11 @@ export default class ComponentsService {
     componentApiConfig: ApiConfig
     authenticationClient: AuthenticationClient
   }) {
-    return new ComponentsService(logger, new ComponentApiClient(logger, componentApiConfig, authenticationClient))
+    return new ComponentsService(
+      logger,
+      componentApiConfig,
+      new ComponentApiClient(logger, componentApiConfig, authenticationClient),
+    )
   }
 
   getFrontendComponents(requestOptions: RequestOptions): RequestHandler {
@@ -78,7 +83,7 @@ export default class ComponentsService {
           res.locals.feComponents.sharedData = meta
         }
 
-        updateCsp(res)
+        updateCsp(this.componentApiConfig.url, res)
 
         return next()
       } catch (_error) {

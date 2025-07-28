@@ -6,7 +6,6 @@ import * as cheerio from 'cheerio'
 import { AuthenticationClient } from '@ministryofjustice/hmpps-auth-clients'
 import Logger from 'bunyan'
 import ComponentsService from './componentsService'
-import config from './config'
 import { HmppsUser, PrisonUser, ProbationUser } from './types/HmppsUser'
 
 const prisonUser = { token: 'token', authSource: 'nomis', displayName: 'Edwin Shannon' } as PrisonUser
@@ -61,7 +60,7 @@ function setupApp(
     logger: loggerMock,
     authenticationClient,
     componentApiConfig: {
-      url: config.apis.feComponents.url as string,
+      url: 'http://fe-components',
       timeout: { deadline: 2500, response: 2500 },
       agent: { timeout: 2500 },
     },
@@ -86,7 +85,7 @@ let componentsApi: nock.Scope
 let authApi: nock.Scope
 
 beforeEach(() => {
-  componentsApi = nock(config.apis.feComponents.url as string)
+  componentsApi = nock('http://fe-components')
   authApi = nock('http://authUrl')
   authApi.post('/oauth/token').reply(200, { access_token: 'token-1', expires_in: 300 })
 })

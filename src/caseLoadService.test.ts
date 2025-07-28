@@ -2,7 +2,6 @@ import { Request, Response } from 'express'
 import Logger from 'bunyan'
 import { PrisonUser } from './types/HmppsUser'
 import CaseLoadService from './caseLoadService'
-import config from './config'
 import PrisonApiClient from './data/prisonApi/prisonApiClient'
 
 describe('retrieveCaseLoadData', () => {
@@ -37,8 +36,6 @@ describe('retrieveCaseLoadData', () => {
     },
   ]
 
-  const configMock = config as jest.Mocked<typeof config>
-
   beforeEach(() => {
     jest.resetAllMocks()
 
@@ -52,12 +49,6 @@ describe('retrieveCaseLoadData', () => {
     } as unknown as PrisonApiClient
 
     caseLoadService = new CaseLoadService(loggerMock, prisonApiClientMock)
-
-    configMock.apis = {
-      feComponents: { url: 'url' },
-      prisonApi: { url: 'url' },
-      allocationsApi: { url: 'url' },
-    }
   })
 
   it('Should use shared data from feComponents and refresh the cache', async () => {
@@ -181,17 +172,6 @@ describe('retrieveCaseLoadData', () => {
 
     await expect(caseLoadService.retrieveCaseLoadData()(req, res, next)).rejects.toThrow(
       'User session required in order to cache case loads',
-    )
-  })
-
-  it('Should throw an error if Prison API URL is not defined', async () => {
-    configMock.apis = {
-      ...configMock.apis,
-      prisonApi: { url: undefined as unknown as string },
-    }
-
-    expect(caseLoadService.retrieveCaseLoadData).toThrow(
-      'Environment variable PRISON_API_URL must be defined for this middleware to work correctly',
     )
   })
 })

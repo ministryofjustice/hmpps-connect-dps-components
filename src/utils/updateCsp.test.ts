@@ -15,7 +15,7 @@ describe('updateCsp', () => {
       set: jest.fn(),
     } as unknown as Response
 
-    updateCsp(res)
+    updateCsp('http://fe-components', res)
 
     expect(res.set).toHaveBeenCalledWith(
       'content-security-policy',
@@ -31,7 +31,7 @@ describe('updateCsp', () => {
       set: jest.fn(),
     } as unknown as Response
 
-    updateCsp(res)
+    updateCsp('http://fe-components', res)
 
     expect(res.set).toHaveBeenCalledWith(
       'content-security-policy',
@@ -48,7 +48,7 @@ describe('updateCsp', () => {
       set: jest.fn(),
     } as unknown as Response
 
-    updateCsp(res)
+    updateCsp('http://fe-components', res)
 
     expect(res.set).toHaveBeenCalledWith(
       'content-security-policy',
