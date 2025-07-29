@@ -1,14 +1,16 @@
 import { Request, Response } from 'express'
+import Logger from 'bunyan'
 import { PrisonUser } from './types/HmppsUser'
-import retrieveCaseLoadData from './caseLoadService'
-import prisonApiClient from './data/prisonApi/prisonApiClient'
-import config from './config'
-
-jest.mock('./data/prisonApi/prisonApiClient')
+import CaseLoadService from './caseLoadService'
+import PrisonApiClient from './data/prisonApi/prisonApiClient'
 
 describe('retrieveCaseLoadData', () => {
   let req: Request
   let res: Response
+  let prisonApiClientMock: PrisonApiClient
+  let caseLoadService: CaseLoadService
+  let loggerMock: Logger
+
   const next = jest.fn()
 
   const prisonUser = { token: 'token', authSource: 'nomis' } as PrisonUser
@@ -34,17 +36,19 @@ describe('retrieveCaseLoadData', () => {
     },
   ]
 
-  const prisonApiClientMock = prisonApiClient as jest.Mocked<typeof prisonApiClient>
-
-  const configMock = config as jest.Mocked<typeof config>
-
   beforeEach(() => {
     jest.resetAllMocks()
-    configMock.apis = {
-      feComponents: { url: 'url' },
-      prisonApi: { url: 'url' },
-      allocationsApi: { url: 'url' },
-    }
+
+    loggerMock = {
+      info: jest.fn(),
+      error: jest.fn(),
+    } as unknown as Logger
+
+    prisonApiClientMock = {
+      getUserCaseLoads: jest.fn(),
+    } as unknown as PrisonApiClient
+
+    caseLoadService = new CaseLoadService(loggerMock, prisonApiClientMock)
   })
 
   it('Should use shared data from feComponents and refresh the cache', async () => {
@@ -61,16 +65,16 @@ describe('retrieveCaseLoadData', () => {
       },
     } as unknown as Response
 
-    await retrieveCaseLoadData({})(req, res, next)
+    await caseLoadService.retrieveCaseLoadData()(req, res, next)
 
     const localsUser = res.locals.user as PrisonUser
     expect(localsUser.caseLoads).toEqual(caseLoads)
     expect(localsUser.activeCaseLoad).toEqual(activeCaseLoad)
     expect(localsUser.activeCaseLoadId).toEqual(activeCaseLoadId)
 
-    expect(req.session.caseLoads).toEqual(caseLoads)
-    expect(req.session.activeCaseLoad).toEqual(activeCaseLoad)
-    expect(req.session.activeCaseLoadId).toEqual(activeCaseLoadId)
+    expect(req.session?.caseLoads).toEqual(caseLoads)
+    expect(req.session?.activeCaseLoad).toEqual(activeCaseLoad)
+    expect(req.session?.activeCaseLoadId).toEqual(activeCaseLoadId)
 
     expect(prisonApiClientMock.getUserCaseLoads).not.toHaveBeenCalled()
   })
@@ -88,16 +92,16 @@ describe('retrieveCaseLoadData', () => {
       },
     } as unknown as Response
 
-    await retrieveCaseLoadData({})(req, res, next)
+    await caseLoadService.retrieveCaseLoadData()(req, res, next)
 
     const localsUser = res.locals.user as PrisonUser
     expect(localsUser.caseLoads).toEqual(caseLoads)
     expect(localsUser.activeCaseLoad).toBeUndefined()
     expect(localsUser.activeCaseLoadId).toBeUndefined()
 
-    expect(req.session.caseLoads).toEqual(caseLoads)
-    expect(req.session.activeCaseLoad).toBeUndefined()
-    expect(req.session.activeCaseLoadId).toBeUndefined()
+    expect(req.session?.caseLoads).toEqual(caseLoads)
+    expect(req.session?.activeCaseLoad).toBeUndefined()
+    expect(req.session?.activeCaseLoadId).toBeUndefined()
 
     expect(prisonApiClientMock.getUserCaseLoads).not.toHaveBeenCalled()
   })
@@ -110,7 +114,7 @@ describe('retrieveCaseLoadData', () => {
       },
     } as unknown as Response
 
-    await retrieveCaseLoadData({})(req, res, next)
+    await caseLoadService.retrieveCaseLoadData()(req, res, next)
 
     const localsUser = res.locals.user as PrisonUser
     expect(localsUser.caseLoads).toEqual(caseLoads)
@@ -124,24 +128,20 @@ describe('retrieveCaseLoadData', () => {
     req = { session: {} } as Request
     res = { locals: { user: prisonUser } } as unknown as Response
 
-    prisonApiClientMock.getUserCaseLoads.mockResolvedValue(caseLoads)
+    prisonApiClientMock.getUserCaseLoads = jest.fn(async () => caseLoads)
 
-    await retrieveCaseLoadData({})(req, res, next)
+    await caseLoadService.retrieveCaseLoadData()(req, res, next)
 
     const localsUser = res.locals.user as PrisonUser
     expect(localsUser.caseLoads).toEqual(caseLoads)
     expect(localsUser.activeCaseLoad).toEqual(activeCaseLoad)
     expect(localsUser.activeCaseLoadId).toEqual(activeCaseLoadId)
 
-    expect(req.session.caseLoads).toEqual(caseLoads)
-    expect(req.session.activeCaseLoad).toEqual(activeCaseLoad)
-    expect(req.session.activeCaseLoadId).toEqual(activeCaseLoadId)
+    expect(req.session?.caseLoads).toEqual(caseLoads)
+    expect(req.session?.activeCaseLoad).toEqual(activeCaseLoad)
+    expect(req.session?.activeCaseLoadId).toEqual(activeCaseLoadId)
 
-    expect(prisonApiClientMock.getUserCaseLoads).toHaveBeenCalledWith(
-      prisonUser.token,
-      expect.anything(),
-      expect.anything(),
-    )
+    expect(prisonApiClientMock.getUserCaseLoads).toHaveBeenCalledWith(prisonUser.token)
   })
 
   it('Should propagate error from Prison API client', async () => {
@@ -150,9 +150,9 @@ describe('retrieveCaseLoadData', () => {
 
     const error = new Error('Error')
 
-    prisonApiClientMock.getUserCaseLoads.mockRejectedValue(error)
+    prisonApiClientMock.getUserCaseLoads = jest.fn().mockRejectedValue(error)
 
-    await retrieveCaseLoadData({})(req, res, next)
+    await caseLoadService.retrieveCaseLoadData()(req, res, next)
 
     expect(next).toHaveBeenCalledWith(error)
   })
@@ -161,7 +161,7 @@ describe('retrieveCaseLoadData', () => {
     req = { session: {} } as Request
     res = { locals: { user: { authSource: 'external' } } } as unknown as Response
 
-    await retrieveCaseLoadData({})(req, res, next)
+    await caseLoadService.retrieveCaseLoadData()(req, res, next)
 
     expect(prisonApiClientMock.getUserCaseLoads).not.toHaveBeenCalled()
   })
@@ -170,19 +170,8 @@ describe('retrieveCaseLoadData', () => {
     req = {} as Request
     res = { locals: { user: prisonUser } } as unknown as Response
 
-    await expect(retrieveCaseLoadData({})(req, res, next)).rejects.toThrow(
+    await expect(caseLoadService.retrieveCaseLoadData()(req, res, next)).rejects.toThrow(
       'User session required in order to cache case loads',
-    )
-  })
-
-  it('Should throw an error if Prison API URL is not defined', async () => {
-    configMock.apis = {
-      ...configMock.apis,
-      prisonApi: { url: undefined },
-    }
-
-    expect(retrieveCaseLoadData).toThrow(
-      'Environment variable PRISON_API_URL must be defined for this middleware to work correctly',
     )
   })
 })

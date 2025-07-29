@@ -1,26 +1,19 @@
-import superagent from 'superagent'
-import type bunyan from 'bunyan'
-import config from '../../config'
-import TimeoutOptions from '../../types/TimeoutOptions'
+import { ApiConfig, asUser, AuthenticationClient, RestClient } from '@ministryofjustice/hmpps-rest-client'
 import CaseLoad from '../../types/CaseLoad'
+import { ConnectDpsComponentLogger } from '../../types/ConnectDpsComponentLogger'
 
-export default {
-  async getUserCaseLoads(
-    userToken: string,
-    timeoutOptions: TimeoutOptions,
-    log: bunyan | typeof console,
-  ): Promise<CaseLoad[]> {
-    const result = await superagent
-      .get(`${config.apis.prisonApi.url}/api/users/me/caseLoads`)
-      .agent(this.agent)
-      .retry(2, (err, _res) => {
-        if (err) log.info(`Retry handler found API error with ${err.code} ${err.message}`)
-        return undefined // retry handler only for logging retries, not to influence retry logic
-      })
-      .query('allCaseloads=true')
-      .auth(userToken, { type: 'bearer' })
-      .timeout(timeoutOptions)
+export default class PrisonApiClient extends RestClient {
+  constructor(logger: ConnectDpsComponentLogger, config: ApiConfig, authenticationClient: AuthenticationClient) {
+    super('Prison API Client', config, logger, authenticationClient)
+  }
 
-    return result.body
-  },
+  async getUserCaseLoads(userToken: string): Promise<CaseLoad[]> {
+    return this.get<CaseLoad[]>(
+      {
+        path: '/api/users/me/caseloads',
+        query: { allCaseloads: true },
+      },
+      asUser(userToken),
+    )
+  }
 }

@@ -1,33 +1,35 @@
 import { Request, Response } from 'express'
+import Logger from 'bunyan'
 import { PrisonUser } from './types/HmppsUser'
-import retrieveAllocationJobResponsibilities from './allocationService'
-import allocationsApiClient from './data/allocationsApi/allocationsApiClient'
+import AllocationService from './allocationService'
+import AllocationsApiClient from './data/allocationsApi/allocationsApiClient'
 import { AllocationJobResponsibility } from './types/AllocationJobResponsibility'
-import config from './config'
-
-jest.mock('./data/allocationsApi/allocationsApiClient')
-jest.mock('./config')
 
 describe('retrieveCaseLoadData', () => {
   let req: Request
   let res: Response
+  let allocationsApiClientMock: AllocationsApiClient
+  let allocationService: AllocationService
+
   const next = jest.fn()
 
   const prisonUser = { token: 'token', authSource: 'nomis' } as PrisonUser
 
-  const allocationsApiClientMock = allocationsApiClient as jest.Mocked<typeof allocationsApiClient>
-
   const allocationJobResponsibilities: AllocationJobResponsibility[] = ['KEY_WORKER']
 
-  const configMock = config as jest.Mocked<typeof config>
+  const loggerMock = {
+    info: jest.fn(),
+    error: jest.fn(),
+  } as unknown as Logger
 
   beforeEach(() => {
     jest.resetAllMocks()
-    configMock.apis = {
-      feComponents: { url: 'url' },
-      prisonApi: { url: 'url' },
-      allocationsApi: { url: 'url' },
-    }
+
+    allocationsApiClientMock = {
+      getStaffAllocationPolicies: jest.fn(),
+    } as unknown as AllocationsApiClient
+
+    allocationService = new AllocationService(loggerMock, allocationsApiClientMock)
   })
 
   it('Should use shared data from feComponents and refresh the cache', async () => {
@@ -43,12 +45,12 @@ describe('retrieveCaseLoadData', () => {
       },
     } as unknown as Response
 
-    await retrieveAllocationJobResponsibilities({})(req, res, next)
+    await allocationService.retrieveAllocationJobResponsibilities()(req, res, next)
 
     const localsUser = res.locals.user as PrisonUser
     expect(localsUser.allocationJobResponsibilities).toEqual(allocationJobResponsibilities)
-    expect(req.session.allocationJobResponsibilities).toEqual(allocationJobResponsibilities)
-    expect(allocationsApiClient.getStaffAllocationPolicies).not.toHaveBeenCalled()
+    expect(req.session?.allocationJobResponsibilities).toEqual(allocationJobResponsibilities)
+    expect(allocationsApiClientMock.getStaffAllocationPolicies).not.toHaveBeenCalled()
   })
 
   it('Should use cached data where feComponents.sharedData is not available', async () => {
@@ -59,30 +61,28 @@ describe('retrieveCaseLoadData', () => {
       },
     } as unknown as Response
 
-    await retrieveAllocationJobResponsibilities({})(req, res, next)
+    await allocationService.retrieveAllocationJobResponsibilities()(req, res, next)
 
     const localsUser = res.locals.user as PrisonUser
     expect(localsUser.allocationJobResponsibilities).toEqual(allocationJobResponsibilities)
-    expect(allocationsApiClient.getStaffAllocationPolicies).not.toHaveBeenCalled()
+    expect(allocationsApiClientMock.getStaffAllocationPolicies).not.toHaveBeenCalled()
   })
 
   it('Should call Allocations API when there is no cached data available', async () => {
     req = { session: {} } as unknown as Request
     res = { locals: { user: prisonUser } } as unknown as Response
 
-    allocationsApiClientMock.getStaffAllocationPolicies.mockResolvedValue({ policies: allocationJobResponsibilities })
+    allocationsApiClientMock.getStaffAllocationPolicies = jest.fn(async () => ({
+      policies: allocationJobResponsibilities,
+    }))
 
-    await retrieveAllocationJobResponsibilities({})(req, res, next)
+    await allocationService.retrieveAllocationJobResponsibilities()(req, res, next)
 
     const localsUser = res.locals.user as PrisonUser
     expect(localsUser.allocationJobResponsibilities).toEqual(allocationJobResponsibilities)
-    expect(req.session.allocationJobResponsibilities).toEqual(allocationJobResponsibilities)
+    expect(req.session?.allocationJobResponsibilities).toEqual(allocationJobResponsibilities)
 
-    expect(allocationsApiClient.getStaffAllocationPolicies).toHaveBeenCalledWith(
-      prisonUser,
-      expect.anything(),
-      expect.anything(),
-    )
+    expect(allocationsApiClientMock.getStaffAllocationPolicies).toHaveBeenCalledWith(prisonUser)
   })
 
   it('Should propagate error from Allocations API client', async () => {
@@ -91,9 +91,9 @@ describe('retrieveCaseLoadData', () => {
 
     const error = new Error('Error')
 
-    allocationsApiClientMock.getStaffAllocationPolicies.mockRejectedValue(error)
+    allocationsApiClientMock.getStaffAllocationPolicies = jest.fn().mockRejectedValue(error)
 
-    await retrieveAllocationJobResponsibilities({})(req, res, next)
+    await allocationService.retrieveAllocationJobResponsibilities()(req, res, next)
 
     expect(next).toHaveBeenCalledWith(error)
   })
@@ -102,28 +102,17 @@ describe('retrieveCaseLoadData', () => {
     req = { session: {} } as unknown as Request
     res = { locals: { user: { authSource: 'external', token: 'TOKEN' } } } as unknown as Response
 
-    await retrieveAllocationJobResponsibilities({})(req, res, next)
+    await allocationService.retrieveAllocationJobResponsibilities()(req, res, next)
 
-    expect(allocationsApiClient.getStaffAllocationPolicies).not.toHaveBeenCalled()
+    expect(allocationsApiClientMock.getStaffAllocationPolicies).not.toHaveBeenCalled()
   })
 
   it('Should throw an error if user session is not available', async () => {
     req = {} as Request
     res = { locals: { user: prisonUser } } as unknown as Response
 
-    await expect(retrieveAllocationJobResponsibilities({})(req, res, next)).rejects.toThrow(
+    await expect(allocationService.retrieveAllocationJobResponsibilities()(req, res, next)).rejects.toThrow(
       'User session required in order to cache allocation job responsibilities',
-    )
-  })
-
-  it('Should throw an error if Allocations API URL is not defined', async () => {
-    configMock.apis = {
-      ...configMock.apis,
-      allocationsApi: { url: undefined },
-    }
-
-    expect(retrieveAllocationJobResponsibilities).toThrow(
-      'Environment variable ALLOCATIONS_API_URL must be defined for this middleware to work correctly',
     )
   })
 })
