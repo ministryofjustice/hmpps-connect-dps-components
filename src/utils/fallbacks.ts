@@ -1,10 +1,11 @@
 import nunjucks from 'nunjucks'
-import RequestOptions from '../types/RequestOptions'
 import { HmppsUser } from '../types/HmppsUser'
 
-export function getFallbackHeader(user: HmppsUser | null, requestOptions: RequestOptions): string {
-  const { dpsUrl, environmentName, authUrl, supportUrl } = requestOptions
-
+export function getFallbackHeader(
+  user: HmppsUser | null,
+  dpsUrl: string,
+  { environmentName, authUrl, supportUrl }: { environmentName?: string; authUrl?: string; supportUrl?: string },
+): string {
   return nunjucks.render('dpsComponents/header-bar.njk', {
     isPrisonUser: !user || user.authSource === 'nomis',
     user,
@@ -16,8 +17,10 @@ export function getFallbackHeader(user: HmppsUser | null, requestOptions: Reques
   })
 }
 
-export function getFallbackFooter(user: HmppsUser | null, requestOptions: RequestOptions): string {
-  const { supportUrl, authUrl } = requestOptions
+export function getFallbackFooter(
+  user: HmppsUser | null,
+  { authUrl, supportUrl }: { authUrl?: string; supportUrl?: string },
+): string {
   return nunjucks.render('dpsComponents/footer.njk', {
     isPrisonUser: !user || user.authSource === 'nomis',
     supportUrl,

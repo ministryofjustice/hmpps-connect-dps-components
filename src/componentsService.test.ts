@@ -64,11 +64,11 @@ function setupApp(
       timeout: { deadline: 2500, response: 2500 },
       agent: { timeout: 2500 },
     },
+    dpsUrl: 'http://dpsUrl',
   })
 
   app.use(
     componentsService.getFrontendComponents({
-      dpsUrl: 'http://dpsUrl',
       authUrl: 'http://authUrl',
       supportUrl: 'http://supportUrl',
       includeSharedData,
