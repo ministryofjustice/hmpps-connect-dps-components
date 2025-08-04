@@ -1,4 +1,4 @@
-import { type RequestHandler } from 'express'
+import { type NextFunction, type Request, type Response, type RequestHandler } from 'express'
 import { ApiConfig, AuthenticationClient } from '@ministryofjustice/hmpps-rest-client'
 import ComponentApiClient from './data/componentApi/componentApiClient'
 import { getFallbackFooter, getFallbackHeader } from './utils/fallbacks'
@@ -47,7 +47,7 @@ export default class ComponentsService {
       ...requestOptions,
     }
 
-    return async (_req, res, next) => {
+    return async (_req: Request, res: Response, next: NextFunction) => {
       const useFallbacks = (user: HmppsUser | null) => {
         res.locals.feComponents = {
           header: getFallbackHeader(user, requestOptionsWithDefaults),

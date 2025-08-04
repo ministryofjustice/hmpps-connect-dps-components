@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/hmpps-connect-dps-components",
-  "version": "2.2.0",
+  "version": "3.0.0-beta.1",
   "description": "A package to allow the inclusion of connect dps micro frontend components within dps applications",
   "main": "./dist/index.cjs",
   "module": "./dist/index.esm.js",
@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "prepare": "hmpps-precommit-hooks-prepare",
-    "build": "rollup -c rollup.config.ts --bundleConfigAsCjs",
+    "build": "rollup -c rollup.config.ts --bundleConfigAsCjs && npm run copy:assets",
     "test": "jest",
     "test:ci": "jest --runInBand --passWithNoTests",
     "typecheck": "tsc",
