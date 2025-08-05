@@ -2,14 +2,19 @@ import { type NextFunction, type Request, type Response, type RequestHandler } f
 import { ApiConfig, AuthenticationClient } from '@ministryofjustice/hmpps-rest-client'
 import ComponentApiClient from './data/componentApi/componentApiClient'
 import { getFallbackFooter, getFallbackHeader } from './utils/fallbacks'
-import RequestOptions from './types/RequestOptions'
 import updateCsp from './utils/updateCsp'
 import { HmppsUser } from './types/HmppsUser'
 import { ConnectDpsComponentLogger } from './types/ConnectDpsComponentLogger'
 
-const defaultOptions: Partial<RequestOptions> = {
-  logger: console,
-  timeoutOptions: { response: 2500, deadline: 2500 },
+export interface FrontentComponentRequestOptions {
+  authUrl?: string
+  supportUrl?: string
+  environmentName?: 'DEV' | 'PRE-PRODUCTION' | 'PRODUCTION'
+  includeSharedData?: boolean
+  useFallbacksByDefault?: boolean
+}
+
+const defaultOptions: Partial<FrontentComponentRequestOptions> = {
   includeSharedData: false,
   useFallbacksByDefault: false,
 }
@@ -19,39 +24,47 @@ export default class ComponentsService {
     private readonly logger: ConnectDpsComponentLogger,
     private readonly componentApiConfig: ApiConfig,
     private readonly componentApiClient: ComponentApiClient,
+    private readonly dpsUrl: string,
   ) {}
 
   static create({
     logger = console,
     componentApiConfig,
     authenticationClient,
+    dpsUrl,
   }: {
     logger?: ConnectDpsComponentLogger
     componentApiConfig: ApiConfig
     authenticationClient: AuthenticationClient
+    dpsUrl: string
   }) {
     return new ComponentsService(
       logger,
       componentApiConfig,
       new ComponentApiClient(logger, componentApiConfig, authenticationClient),
+      dpsUrl,
     )
   }
 
-  getFrontendComponents(requestOptions: RequestOptions): RequestHandler {
+  getFrontendComponents(requestOptions: FrontentComponentRequestOptions): RequestHandler {
     const requestOptionsWithDefaults = {
       ...defaultOptions,
       ...requestOptions,
     }
-    const { includeSharedData, useFallbacksByDefault } = {
-      ...defaultOptions,
-      ...requestOptions,
-    }
+    const { includeSharedData, useFallbacksByDefault } = requestOptionsWithDefaults
 
     return async (_req: Request, res: Response, next: NextFunction) => {
       const useFallbacks = (user: HmppsUser | null) => {
         res.locals.feComponents = {
-          header: getFallbackHeader(user, requestOptionsWithDefaults),
-          footer: getFallbackFooter(user, requestOptionsWithDefaults),
+          header: getFallbackHeader(user, this.dpsUrl, {
+            environmentName: requestOptionsWithDefaults.environmentName,
+            authUrl: requestOptionsWithDefaults.authUrl,
+            supportUrl: requestOptionsWithDefaults.supportUrl,
+          }),
+          footer: getFallbackFooter(user, {
+            authUrl: requestOptionsWithDefaults.authUrl,
+            supportUrl: requestOptionsWithDefaults.supportUrl,
+          }),
           cssIncludes: [],
           jsIncludes: [],
         }
