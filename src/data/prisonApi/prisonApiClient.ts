@@ -11,7 +11,7 @@ export default class PrisonApiClient extends RestClient {
     return this.get<CaseLoad[]>(
       {
         path: '/api/users/me/caseloads',
-        query: { allCaseloads: true },
+        query: 'allCaseloads=true',
       },
       asUser(userToken),
     )
