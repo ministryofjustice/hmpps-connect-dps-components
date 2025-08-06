@@ -6,7 +6,7 @@ import updateCsp from './utils/updateCsp'
 import { HmppsUser } from './types/HmppsUser'
 import { ConnectDpsComponentLogger } from './types/ConnectDpsComponentLogger'
 
-export interface FrontentComponentRequestOptions {
+export interface FrontendComponentRequestOptions {
   authUrl?: string
   supportUrl?: string
   environmentName?: 'DEV' | 'PRE-PRODUCTION' | 'PRODUCTION'
@@ -14,7 +14,7 @@ export interface FrontentComponentRequestOptions {
   useFallbacksByDefault?: boolean
 }
 
-const defaultOptions: Partial<FrontentComponentRequestOptions> = {
+const defaultOptions: Partial<FrontendComponentRequestOptions> = {
   includeSharedData: false,
   useFallbacksByDefault: false,
 }
@@ -46,10 +46,10 @@ export default class ComponentsService {
     )
   }
 
-  getFrontendComponents(requestOptions: FrontentComponentRequestOptions): RequestHandler {
+  getFrontendComponents(requestOptions?: FrontendComponentRequestOptions): RequestHandler {
     const requestOptionsWithDefaults = {
       ...defaultOptions,
-      ...requestOptions,
+      ...(requestOptions || {}),
     }
     const { includeSharedData, useFallbacksByDefault } = requestOptionsWithDefaults
 
