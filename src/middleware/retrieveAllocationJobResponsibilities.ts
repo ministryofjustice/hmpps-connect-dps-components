@@ -1,7 +1,7 @@
 import { type RequestHandler } from 'express'
 import AllocationService from '../allocationService'
 
-export default function getFrontendComponents({
+export default function retrieveAllocationJobResponsibilities({
   logger = console,
   allocationsApiConfig,
   authenticationClient,
