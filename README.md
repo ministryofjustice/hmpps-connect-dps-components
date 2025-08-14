@@ -16,10 +16,14 @@ in order to improve it.
 
 The package assumes adherance to the standard [hmpps-template-typescript](https://github.com/ministryofjustice/hmpps-template-typescript) project.
 It requires:
+ - the [`hmpps-auth-clients` package](https://github.com/ministryofjustice/hmpps-typescript-lib/tree/main/packages/auth-clients) to be installed and setup so that you are able to create `AuthenticationClients`
  - a user object to be available on `res.locals` containing a token, displayName, and authSource.
  - nunjucks to be setup
- - an environment variable to be set for the micro frontend components api called `COMPONENT_API_URL`
  - to be run AFTER helmet middleware
+ - API configs defined for the following:
+   - [Component API](https://github.com/ministryofjustice/hmpps-micro-frontend-components)
+   - (If using the [caseload data middleware](./src/middleware/retrieveCaseLoadData.ts)) - Prison API
+   - (If using the [allocation job responsibilities middleware](./src/middleware/retrieveAllocationJobResponsibilities.ts)) - Allocations API config
 
 ### Installation
 
@@ -36,13 +40,16 @@ Currently, the package provides the header and the footer component.
 To incorporate use the middleware for appropriate routes within your Express application:
 
 ```javascript
-    import dpsComponents from '@ministryofjustice/hmpps-connect-dps-components'
+    import { getFrontendComponents } from '@ministryofjustice/hmpps-connect-dps-components'
 
     ...
 
-    app.use(dpsComponents.getPageComponents({
-      dpsUrl: config.serviceUrls.digitalPrison,
+    app.use(getFrontendComponents({
       logger,
+      authenticationClient: new AuthenticationClient(config.apis.hmppsAuth, logger, services.dataAccess.tokenStore),
+      componentApiConfig: config.apis.componentApi,
+      dpsUrl: config.serviceUrls.digitalPrison,
+      requestOptions: { includeSharedData: true },
     })
   )
 ```
@@ -52,9 +59,12 @@ To incorporate use the middleware for appropriate routes within your Express app
 It may be sufficient for you app to only request components for GET requests for example, in which case
 
 ```javascript
-    app.get('*', dpsComponents.getPageComponents({
-      dpsUrl: config.serviceUrls.digitalPrison,
+    app.get('*', getFrontendComponents({
       logger,
+      authenticationClient: new AuthenticationClient(config.apis.hmppsAuth, logger, services.dataAccess.tokenStore),
+      componentApiConfig: config.apis.componentApi,
+      dpsUrl: config.serviceUrls.digitalPrison,
+      requestOptions: { includeSharedData: true },
     })
   )
 ```
@@ -68,9 +78,11 @@ something like this to avoid the component API call for the following routes: `/
 ```javascript
     app.get(
       /^(?!\/api|^\/$).*/,
-      dpsComponents.getPageComponents({
-        dpsUrl: config.serviceUrls.digitalPrison,
+      getFrontendComponents({
         logger,
+        authenticationClient: new AuthenticationClient(config.apis.hmppsAuth, logger, services.dataAccess.tokenStore),
+        componentApiConfig: config.apis.componentApi,
+        dpsUrl: config.serviceUrls.digitalPrison,
       }),
       (req, res) => {
         res.render('prisonerProfile')
@@ -135,7 +147,13 @@ of routes. e.g. in `setUpAuthentication.ts` on the `/autherror` path:
 ```javascript
      router.get(
       '/autherror',
-      dpsComponents.getPageComponents({ dpsUrl: config.serviceUrls.digitalPrison }),
+      getFrontendComponents({
+        logger,
+        authenticationClient: new AuthenticationClient(config.apis.hmppsAuth, logger, services.dataAccess.tokenStore),
+        componentApiConfig: config.apis.componentApi,
+        dpsUrl: config.serviceUrls.digitalPrison,
+        requestOptions: { includeSharedData: true },
+      }),
       (req, res) => {
         res.status(401)
         return res.render('autherror')
@@ -152,7 +170,7 @@ be run after Helmet to prevent this being overwritten.
 
 ### Shared Data 
 
-An optional parameter `includeSharedData: true` can be passed into the `get` method. Setting this will result in a 
+An optional parameter `includeSharedData: true` can be passed into the `get` methods request options. Setting this will result in a 
 `sharedData` object being added to `res.locals.feComponents` containing data the components have collected to render. 
 This includes:
 
@@ -179,10 +197,15 @@ call to Prison API to retrieve the data using the user token.
 To enable this, add the middleware after the component middleware as follows:
 
 ```javascript
-app.use(dpsComponents.retrieveCaseLoadData({ logger }))
-```
+import { retrieveCaseLoadData } from '@ministryofjustice/hmpps-connect-dps-components'
 
-Again there are a [number of options](./src/index.ts) available depending on your requirements.
+app.use(retrieveCaseLoadData({
+    logger,
+    authenticationClient: new AuthenticationClient(config.apis.hmppsAuth, logger, services.dataAccess.tokenStore),
+    prisonApiConfig: config.apis.prisonApi,
+  }),
+)
+```
 
 This middleware checks the `res.locals.user.authSource` so ensure that any mock auth data used in tests includes 
 `auth_source: 'nomis'` in the response.
@@ -199,13 +222,15 @@ call to Allocations API to retrieve the data using the user token.
 To enable this, add the middleware after the component middleware as follows:
 
 ```javascript
-app.use(dpsComponents.retrieveAllocationJobResponsibilities({ logger }))
+import { retrieveAllocationJobResponsibilities } from '@ministryofjustice/hmpps-connect-dps-components'
+app.use(retrieveAllocationJobResponsibilities({ 
+  logger,
+  authenticationClient: new AuthenticationClient(config.apis.hmppsAuth, logger, services.dataAccess.tokenStore),
+  allocationsApiConfig: config.apis.allocationsApi,
+}))
 ```
 
-This should go after `dpsComponents.retrieveCaseLoadData` so that `res.locals.user.activeCaseLoadId` will be populated.
-It also requires `ALLOCATIONS_API_URL` to be configured in the environment variables.
-
-Again there are a [number of options](./src/index.ts) available depending on your requirements.
+This should go after `retrieveCaseLoadData` so that `res.locals.user.activeCaseLoadId` will be populated.
 
 This middleware checks the `res.locals.user.authSource` so ensure that any mock auth data used in tests includes
 `auth_source: 'nomis'` in the response. It also checks the `res.locals.user.activeCaseLoadId`, which is required for retrieving allocation job responsibilities.
