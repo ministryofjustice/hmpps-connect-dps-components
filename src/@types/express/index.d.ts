@@ -3,6 +3,8 @@ import HeaderFooterSharedData from '../../types/HeaderFooterSharedData'
 import { HmppsUser } from '../../types/HmppsUser'
 import { AllocationJobResponsibility } from '../../types/AllocationJobResponsibility'
 
+export default {}
+
 export declare global {
   namespace Express {
     interface SessionData {

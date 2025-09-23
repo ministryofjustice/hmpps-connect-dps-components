@@ -14,8 +14,8 @@ export default class ComponentApiClient extends RestClient {
   }
 
   async getComponents<T extends AvailableComponent[]>(userToken: string): Promise<ComponentsApiResponse<T>> {
-    return this.get<ComponentsApiResponse<T>>({
-      path: `/components`,
+    return this.get({
+      path: '/components',
       query: 'component=header&component=footer',
       headers: { 'x-user-token': userToken },
     })
