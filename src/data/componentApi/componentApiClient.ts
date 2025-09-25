@@ -1,4 +1,4 @@
-import { ApiConfig, asSystem, AuthenticationClient, RestClient } from '@ministryofjustice/hmpps-rest-client'
+import { ApiConfig, RestClient } from '@ministryofjustice/hmpps-rest-client'
 import AvailableComponent from '../../types/AvailableComponent'
 import Component from '../../types/Component'
 import { ConnectDpsComponentLogger } from '../../types/ConnectDpsComponentLogger'
@@ -9,18 +9,15 @@ export type ComponentsApiResponse<T extends AvailableComponent[]> = Record<T[num
 }
 
 export default class ComponentApiClient extends RestClient {
-  constructor(logger: ConnectDpsComponentLogger, config: ApiConfig, authenticationClient: AuthenticationClient) {
-    super('Component API Client', config, logger, authenticationClient)
+  constructor(logger: ConnectDpsComponentLogger, config: ApiConfig) {
+    super('Component API Client', config, logger)
   }
 
   async getComponents<T extends AvailableComponent[]>(userToken: string): Promise<ComponentsApiResponse<T>> {
-    return this.get<ComponentsApiResponse<T>>(
-      {
-        path: `/components`,
-        query: 'component=header&component=footer',
-        headers: { 'x-user-token': userToken },
-      },
-      asSystem(),
-    )
+    return this.get<ComponentsApiResponse<T>>({
+      path: `/components`,
+      query: 'component=header&component=footer',
+      headers: { 'x-user-token': userToken },
+    })
   }
 }

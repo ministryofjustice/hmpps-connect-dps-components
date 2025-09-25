@@ -8,10 +8,9 @@ type MiddlewareOptions = {
 export default function getFrontendComponents({
   logger = console,
   componentApiConfig,
-  authenticationClient,
   dpsUrl,
   requestOptions,
 }: MiddlewareOptions): RequestHandler {
-  const service = ComponentsService.create({ logger, componentApiConfig, authenticationClient, dpsUrl })
+  const service = ComponentsService.create({ logger, componentApiConfig, dpsUrl })
   return service.getFrontendComponents(requestOptions)
 }

@@ -3,7 +3,6 @@ import nunjucks from 'nunjucks'
 import request from 'supertest'
 import nock from 'nock'
 import * as cheerio from 'cheerio'
-import { AuthenticationClient } from '@ministryofjustice/hmpps-auth-clients'
 import Logger from 'bunyan'
 import ComponentsService from './componentsService'
 import { HmppsUser, PrisonUser, ProbationUser } from './types/HmppsUser'
@@ -45,20 +44,8 @@ function setupApp(
     warning: jest.fn(),
   } as unknown as Logger
 
-  const authenticationClient = new AuthenticationClient(
-    {
-      systemClientId: '',
-      systemClientSecret: '',
-      url: 'http://authUrl',
-      timeout: { deadline: 2500, response: 2500 },
-      agent: { timeout: 2500 },
-    },
-    loggerMock,
-  )
-
   const componentsService = ComponentsService.create({
     logger: loggerMock,
-    authenticationClient,
     componentApiConfig: {
       url: 'http://fe-components',
       timeout: { deadline: 2500, response: 2500 },
