@@ -1,5 +1,5 @@
 import { type NextFunction, type Request, type Response, type RequestHandler } from 'express'
-import { ApiConfig, AuthenticationClient } from '@ministryofjustice/hmpps-rest-client'
+import { ApiConfig } from '@ministryofjustice/hmpps-rest-client'
 import ComponentApiClient from './data/componentApi/componentApiClient'
 import { getFallbackFooter, getFallbackHeader } from './utils/fallbacks'
 import updateCsp from './utils/updateCsp'
@@ -30,20 +30,13 @@ export default class ComponentsService {
   static create({
     logger = console,
     componentApiConfig,
-    authenticationClient,
     dpsUrl,
   }: {
     logger?: ConnectDpsComponentLogger
     componentApiConfig: ApiConfig
-    authenticationClient: AuthenticationClient
     dpsUrl: string
   }) {
-    return new ComponentsService(
-      logger,
-      componentApiConfig,
-      new ComponentApiClient(logger, componentApiConfig, authenticationClient),
-      dpsUrl,
-    )
+    return new ComponentsService(logger, componentApiConfig, new ComponentApiClient(logger, componentApiConfig), dpsUrl)
   }
 
   getFrontendComponents(requestOptions?: FrontendComponentRequestOptions): RequestHandler {
