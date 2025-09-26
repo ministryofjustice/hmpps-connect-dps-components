@@ -8,7 +8,7 @@ export default class PrisonApiClient extends RestClient {
   }
 
   async getUserCaseLoads(userToken: string): Promise<CaseLoad[]> {
-    return this.get<CaseLoad[]>(
+    return this.get(
       {
         path: '/api/users/me/caseLoads',
         query: 'allCaseloads=true',

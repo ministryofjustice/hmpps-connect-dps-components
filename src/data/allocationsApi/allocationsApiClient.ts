@@ -9,7 +9,7 @@ export default class AllocationsApiClient extends RestClient {
   }
 
   async getStaffAllocationPolicies(user: PrisonUser): Promise<{ policies: AllocationJobResponsibility[] }> {
-    return this.get<{ policies: AllocationJobResponsibility[] }>(
+    return this.get(
       {
         path: `/prisons/${user.activeCaseLoadId}/staff/${user.userId}/job-classifications`,
       },

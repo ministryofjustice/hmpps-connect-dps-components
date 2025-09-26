@@ -27,7 +27,7 @@ function setupApp(
   } = { user: prisonUser, includeSharedData: false, useFallbacksByDefault: false },
 ): express.Application {
   const app = express()
-  app.use((req, res, next) => {
+  app.use((_req, res, next) => {
     res.locals.user = user as HmppsUser
     next()
   })
