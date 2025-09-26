@@ -1,5 +1,5 @@
 import { type RequestHandler } from 'express'
-import { ApiConfig, AuthenticationClient } from '@ministryofjustice/hmpps-rest-client'
+import { ApiConfig } from '@ministryofjustice/hmpps-rest-client'
 import CaseLoad from './types/CaseLoad'
 import PrisonApiClient from './data/prisonApi/prisonApiClient'
 import { ConnectDpsComponentLogger } from './types/ConnectDpsComponentLogger'
@@ -13,13 +13,11 @@ export default class CaseLoadService {
   static create({
     logger = console,
     prisonApiConfig,
-    authenticationClient,
   }: {
     logger?: ConnectDpsComponentLogger
     prisonApiConfig: ApiConfig
-    authenticationClient: AuthenticationClient
   }) {
-    return new CaseLoadService(logger, new PrisonApiClient(logger, prisonApiConfig, authenticationClient))
+    return new CaseLoadService(logger, new PrisonApiClient(logger, prisonApiConfig))
   }
 
   retrieveCaseLoadData(): RequestHandler {

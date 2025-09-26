@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/hmpps-connect-dps-components",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "description": "A package to allow the inclusion of connect dps micro frontend components within dps applications",
   "main": "./dist/index.cjs",
   "module": "./dist/index.esm.js",
