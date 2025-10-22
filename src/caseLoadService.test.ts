@@ -41,6 +41,7 @@ describe('retrieveCaseLoadData', () => {
 
     loggerMock = {
       info: jest.fn(),
+      warn: jest.fn(),
       error: jest.fn(),
     } as unknown as Logger
 
