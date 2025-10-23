@@ -23,6 +23,9 @@ export default class CaseLoadService {
   retrieveCaseLoadData(): RequestHandler {
     return async (req, res, next) => {
       if (!req.session) throw new Error('User session required in order to cache case loads')
+      if (!res.locals.user) this.logger.warn('No res.locals.user object defined to set case load data in')
+      if (!res.locals.user?.token) this.logger.warn('No res.locals.user.token defined to request case load data with')
+      if (!res.locals.user?.authSource) this.logger.warn('No user auth source found')
 
       if (res.locals.user && res.locals.user.token && res.locals.user.authSource === 'nomis') {
         try {
