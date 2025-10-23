@@ -1,0 +1,170 @@
+diff --git a/assets/scss/index.scss b/assets/scss/index.scss
+index 70feedd..a7cd9fd 100644
+--- a/assets/scss/index.scss
++++ b/assets/scss/index.scss
+@@ -6,6 +6,8 @@ $govuk-page-width: $moj-page-width;
+
+ @import "govuk-frontend/dist/govuk/index";
+ @import "@ministryofjustice/frontend/moj/all";
++@import "@ministryofjustice/hmpps-connect-dps-components/dist/assets/footer";
++@import "@ministryofjustice/hmpps-connect-dps-components/dist/assets/header-bar";
+
+ @import './components/header-bar';
+ @import './overrides/local';
+diff --git a/feature.env b/feature.env
+index 9a3f344..11b4654 100644
+--- a/feature.env
++++ b/feature.env
+@@ -1,6 +1,8 @@
+ PORT=3007
+ HMPPS_AUTH_URL=http://localhost:9091/auth
+ TOKEN_VERIFICATION_API_URL=http://localhost:9091/verification
++COMPONENT_API_URL=http://localhost:9091/frontend-components
++DPS_HOME_PAGE_URL=http://localhost:9091/dpshomepage
+ EXAMPLE_API_URL=http://localhost:9091/example-api
+ TOKEN_VERIFICATION_ENABLED=true
+ REDIS_ENABLED=false
+diff --git a/helm_deploy/values-dev.yaml b/helm_deploy/values-dev.yaml
+index f40e7d3..52b7431 100644
+--- a/helm_deploy/values-dev.yaml
++++ b/helm_deploy/values-dev.yaml
+@@ -11,6 +11,8 @@ generic-service:
+     INGRESS_URL: "https://template-typescript-dev.hmpps.service.justice.gov.uk"
+     HMPPS_AUTH_URL: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth"
+     TOKEN_VERIFICATION_API_URL: "https://token-verification-api-dev.prison.service.justice.gov.uk"
++    COMPONENT_API_URL: "https://frontend-components-dev.hmpps.service.justice.gov.uk"
++    DPS_HOME_PAGE_URL: "https://digital-dev.prison.service.justice.gov.uk"
+     EXAMPLE_API_URL: 'https://template-kotlin-dev.hmpps.service.justice.gov.uk'
+     ENVIRONMENT_NAME: DEV
+     AUDIT_ENABLED: "false"
+diff --git a/helm_deploy/values-preprod.yaml b/helm_deploy/values-preprod.yaml
+index 554e19a..0d577b2 100644
+--- a/helm_deploy/values-preprod.yaml
++++ b/helm_deploy/values-preprod.yaml
+@@ -11,6 +11,8 @@ generic-service:
+     INGRESS_URL: "https://template-typescript-preprod.hmpps.service.justice.gov.uk"
+     HMPPS_AUTH_URL: "https://sign-in-preprod.hmpps.service.justice.gov.uk/auth"
+     TOKEN_VERIFICATION_API_URL: "https://token-verification-api-preprod.prison.service.justice.gov.uk"
++    COMPONENT_API_URL: "https://frontend-components-preprod.hmpps.service.justice.gov.uk"
++    DPS_HOME_PAGE_URL: "https://digital-preprod.prison.service.justice.gov.uk"
+     EXAMPLE_API_URL: 'https://template-kotlin-preprod.hmpps.service.justice.gov.uk'
+     ENVIRONMENT_NAME: PRE-PRODUCTION
+     AUDIT_ENABLED: "false"
+diff --git a/helm_deploy/values-prod.yaml b/helm_deploy/values-prod.yaml
+index 6bb4e41..3a2ae46 100644
+--- a/helm_deploy/values-prod.yaml
++++ b/helm_deploy/values-prod.yaml
+@@ -9,6 +9,8 @@ generic-service:
+     INGRESS_URL: "https://template-typescript.hmpps.service.justice.gov.uk"
+     HMPPS_AUTH_URL: "https://sign-in.hmpps.service.justice.gov.uk/auth"
+     TOKEN_VERIFICATION_API_URL: "https://token-verification-api.prison.service.justice.gov.uk"
++    COMPONENT_API_URL: "https://frontend-components.hmpps.service.justice.gov.uk"
++    DPS_HOME_PAGE_URL: "https://digital.prison.service.justice.gov.uk"
+     EXAMPLE_API_URL: 'https://template-kotlin.hmpps.service.justice.gov.uk'
+     AUDIT_ENABLED: "false"
+
+diff --git a/server/app.ts b/server/app.ts
+index eddaa67..0dfb1fe 100755
+--- a/server/app.ts
++++ b/server/app.ts
+@@ -1,7 +1,10 @@
+ import express from 'express'
++import { getFrontendComponents } from '@ministryofjustice/hmpps-connect-dps-components'
+
+ import createError from 'http-errors'
+
++import logger from '../logger'
++import config from './config'
+ import nunjucksSetup from './utils/nunjucksSetup'
+ import errorHandler from './errorHandler'
+ import { appInsightsMiddleware } from './utils/azureAppInsights'
+@@ -38,6 +41,15 @@ export default function createApp(services: Services): express.Application {
+   app.use(setUpCsrf())
+   app.use(setUpCurrentUser())
+
++  app.use(
++    getFrontendComponents({
++      logger,
++      componentApiConfig: config.apis.componentApi,
++      dpsUrl: config.serviceUrls.digitalPrison,
++      requestOptions: { includeSharedData: true },
++    }),
++  )
++
+   app.use(routes(services))
+
+   app.use((req, res, next) => next(createError(404, 'Not found')))
+diff --git a/server/config.ts b/server/config.ts
+index e49a07b..9bbba57 100755
+--- a/server/config.ts
++++ b/server/config.ts
+@@ -72,6 +72,15 @@ export default {
+       agent: new AgentConfig(Number(get('TOKEN_VERIFICATION_API_TIMEOUT_RESPONSE', 5000))),
+       enabled: get('TOKEN_VERIFICATION_ENABLED', 'false') === 'true',
+     },
++    componentApi: {
++      url: get('COMPONENT_API_URL', 'http://localhost:8082', requiredInProduction),
++      healthPath: '/ping',
++      timeout: {
++        response: Number(get('COMPONENT_API_TIMEOUT_RESPONSE', 2500)),
++        deadline: Number(get('COMPONENT_API_TIMEOUT_DEADLINE', 2500)),
++      },
++      agent: new AgentConfig(Number(get('COMPONENT_TIMEOUT_DEADLINE', 10000))),
++    },
+     exampleApi: {
+       url: get('EXAMPLE_API_URL', 'http://localhost:8080', requiredInProduction),
+       healthPath: '/health/ping',
+@@ -82,6 +91,7 @@ export default {
+       agent: new AgentConfig(Number(get('EXAMPLE_API_TIMEOUT_RESPONSE', 5000))),
+     },
+   },
++  serviceUrls: { digitalPrison: get('DPS_HOME_PAGE_URL', 'http://localhost:3001', requiredInProduction) },
+   sqs: {
+     audit: auditConfig(),
+   },
+diff --git a/server/utils/nunjucksSetup.ts b/server/utils/nunjucksSetup.ts
+index 1d00293..69a787c 100644
+--- a/server/utils/nunjucksSetup.ts
++++ b/server/utils/nunjucksSetup.ts
+@@ -30,6 +30,7 @@ export default function nunjucksSetup(app: express.Express): void {
+       path.join(__dirname, '../../server/views'),
+       'node_modules/govuk-frontend/dist/',
+       'node_modules/@ministryofjustice/frontend/',
++      'node_modules/@ministryofjustice/hmpps-connect-dps-components/dist/assets/',
+     ],
+     {
+       autoescape: true,
+diff --git a/server/views/partials/layout.njk b/server/views/partials/layout.njk
+index 63653a0..d87b07a 100644
+--- a/server/views/partials/layout.njk
++++ b/server/views/partials/layout.njk
+@@ -2,17 +2,28 @@
+
+ {% block head %}
+   <link href="{{ '/assets/css/index.css' | assetMap }}" rel="stylesheet"/>
++
++  {% for js in feComponents.jsIncludes %}
++    <script src="{{ js }}" nonce="{{ cspNonce }}"></script>
++  {% endfor %}
++  {% for css in feComponents.cssIncludes %}
++    <link href="{{ css }}" nonce="{{ cspNonce }}" rel="stylesheet" />
++  {% endfor %}
+ {% endblock %}
+
+ {% block pageTitle %}{{pageTitle | default(applicationName)}}{% endblock %}
+
+ {% block header %}
+-  {% include "./header.njk" %}
++  {{ feComponents.header | safe }}
+ {% endblock %}
+
+ {% block bodyStart %}
+ {% endblock %}
+
++{% block footer %}
++  {{ feComponents.footer | safe }}
++{% endblock %}
++
+ {% block bodyEnd %}
+   <script type="module" src="{{ '/assets/js/index.js' | assetMap }}"></script>
+ {% endblock %}

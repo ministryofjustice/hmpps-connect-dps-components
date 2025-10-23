@@ -8,6 +8,7 @@
   "files": [
     "dist/**/*"
   ],
+  "bin": "./scripts/install.ts",
   "scripts": {
     "prepare": "hmpps-precommit-hooks-prepare",
     "build": "rollup -c rollup.config.ts --bundleConfigAsCjs && npm run copy:assets",
