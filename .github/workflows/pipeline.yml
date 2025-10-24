@@ -64,6 +64,29 @@ jobs:
       - name: Run linting checks
         run: npm run lint
 
+  test-installation:
+    name: Test installing components into hmpps-template-typescript
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Setup node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install
+      - name: Checkout hmpps-template-typescript repository
+        uses: actions/checkout@v5
+        with:
+          repository: ministryofjustice/hmpps-template-typescript
+          path: test-installation
+      - name: Test component installation
+        run: |
+          cd test-installation
+          npx ..
+          git status
+
   publish:
     name: Publish
     runs-on: ubuntu-latest

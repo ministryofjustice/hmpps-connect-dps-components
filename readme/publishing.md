@@ -18,4 +18,4 @@ The process to publish a change is as follows:
     * Enter a more detailed description of the release
     * Click `Publish release`
 
-CircleCI is configured to trigger on the tagged release and publish to NPM.
+Github Actions pipeline will trigger on the tagged release and publish to NPM.

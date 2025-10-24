@@ -39,7 +39,20 @@ npm install @ministryofjustice/hmpps-connect-dps-components
 
 Currently, the package provides the header and the footer component.
 
-To incorporate use the middleware for appropriate routes within your Express application:
+#### Automatic installation
+
+You can use this script to attempt to automatically install DPS components. It is designed to work with the latest
+[hmpps-template-typescript](https://github.com/ministryofjustice/hmpps-template-typescript) file layout.
+
+```shell
+npx @ministryofjustice/hmpps-connect-dps-components
+```
+
+Do take care to check the diff carefully, in case your repository has diverged from the template.
+
+#### Manual installation
+
+To incorporate, use the middleware for appropriate routes within your Express application:
 
 ```javascript
     import { getFrontendComponents } from '@ministryofjustice/hmpps-connect-dps-components'
@@ -51,8 +64,7 @@ To incorporate use the middleware for appropriate routes within your Express app
       componentApiConfig: config.apis.componentApi,
       dpsUrl: config.serviceUrls.digitalPrison,
       requestOptions: { includeSharedData: true },
-    })
-  )
+    }))
 ```
 
 **However, please 🙏 consider carefully whether you need the components for EVERY request.**
@@ -94,7 +106,7 @@ There are a [number of options](./src/index.ts) available depending on your requ
 Add the `hmpps-connect-dps-components` path to the nunjucksSetup.ts file to enable css to be loaded:
 
 ```javascript
-    const njkEnv = nunjucks.configure(
+const njkEnv = nunjucks.configure(
   [
     path.join(__dirname, '../../server/views'),
     'node_modules/govuk-frontend/dist/',
@@ -112,13 +124,13 @@ Add the `hmpps-connect-dps-components` path to the nunjucksSetup.ts file to enab
 
 Include the package scss within the all.scss file
 ```scss
-  @import 'node_modules/@ministryofjustice/hmpps-connect-dps-components/dist/assets/footer';
-  @import 'node_modules/@ministryofjustice/hmpps-connect-dps-components/dist/assets/header-bar';
+@import '@ministryofjustice/hmpps-connect-dps-components/dist/assets/footer';
+@import '@ministryofjustice/hmpps-connect-dps-components/dist/assets/header-bar';
 ```
 
 Include reference to the components in your layout.njk file:
 
-```typescript
+```nunjucks
 {% for js in feComponents.jsIncludes %}
     <script src="{{ js }}" nonce="{{ cspNonce }}"></script>
 {% endfor %}
@@ -127,12 +139,12 @@ Include reference to the components in your layout.njk file:
     <link href="{{ css }}" nonce="{{ cspNonce }}" rel="stylesheet" />
 {% endfor %}
 ```
-```typescript
+```nunjucks
 {% block header %}
   {{ feComponents.header | safe }}
 {% endblock %}
 ```
-```typescript
+```nunjucks
 {% block footer %}
     {{ feComponents.footer | safe }}
 {% endblock %}
@@ -156,7 +168,7 @@ of routes. e.g. in `setUpAuthentication.ts` on the `/autherror` path:
         res.status(401)
         return res.render('autherror')
       },
-  )
+    )
 ```
 
 This will provide a stripped down header for if there is no user object on `res.locals`.
