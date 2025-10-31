@@ -10,6 +10,9 @@
     "scripts/**/*"
   ],
   "bin": "./scripts/install.ts",
+  "engines": {
+    "node": "20 || 22 || 24"
+  },
   "scripts": {
     "prepare": "hmpps-precommit-hooks-prepare",
     "build": "rollup -c rollup.config.ts --bundleConfigAsCjs && npm run copy:assets",
@@ -52,7 +55,7 @@
     "@rollup/plugin-multi-entry": "^6.0.1",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-typescript": "^12.1.4",
-    "@tsconfig/node22": "^22.0.2",
+    "@tsconfig/node24": "^24.0.1",
     "@types/bunyan": "^1.8.11",
     "@types/express": "^4.17.22",
     "@types/jest": "^29.5.14",
@@ -74,7 +77,7 @@
   },
   "dependencies": {
     "@ministryofjustice/hmpps-rest-client": "^0.0.3",
-    "@types/node": "22.18.6",
+    "@types/node": "^24.9.2",
     "@types/nunjucks": "^3.2.6",
     "nunjucks": "^3.2.4",
     "superagent": "^10.2.3"
