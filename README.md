@@ -1,6 +1,9 @@
 # hmpps-connect-dps-components
 
-`hmpps-connect-dps-components` is a Node.js client library to simplify the process of incorporating global components 
+[![repo standards badge](https://img.shields.io/badge/endpoint.svg?&style=flat&logo=github&url=https%3A%2F%2Foperations-engineering-reports.cloud-platform.service.justice.gov.uk%2Fapi%2Fv1%2Fcompliant_public_repositories%2Fhmpps-connect-dps-components)](https://operations-engineering-reports.cloud-platform.service.justice.gov.uk/public-report/hmpps-connect-dps-components "Link to report")
+[![Test, lint & publish](https://github.com/ministryofjustice/hmpps-connect-dps-components/actions/workflows/pipeline.yml/badge.svg?branch=main)](https://github.com/ministryofjustice/hmpps-connect-dps-components/actions/workflows/pipeline.yml)
+
+`hmpps-connect-dps-components` is a Node.js client library to simplify the process of incorporating global components
 within DPS applications. We welcome feedback on this README [here](https://moj.enterprise.slack.com/archives/C04JFG3QJE6)
 in order to improve it.
 
@@ -84,7 +87,7 @@ It may be sufficient for you app to only request components for GET requests for
 may be more appropriate, especially if you use the [PRG pattern](https://en.wikipedia.org/wiki/Post/Redirect/Get) to
 handle form submission. This will help us to reduce the load on the micro frontend components API. You may wish to
 go even further, for example avoiding routes that don't need components - the Prisoner Profile does
-something like this to avoid the component API call for the following routes: `/api` (provides prisoner images) and `/` 
+something like this to avoid the component API call for the following routes: `/api` (provides prisoner images) and `/`
 (a redirect only route).
 
 ```javascript
@@ -152,7 +155,7 @@ Include reference to the components in your layout.njk file:
 
 ### Extra calls
 
-It may be that you need to add some extra requests for the page components for pages that do not fit the normal flow 
+It may be that you need to add some extra requests for the page components for pages that do not fit the normal flow
 of routes. e.g. in `setUpAuthentication.ts` on the `/autherror` path:
 
 ```javascript
@@ -175,13 +178,13 @@ This will provide a stripped down header for if there is no user object on `res.
 
 ### CSP
 
-The package updates the content-security-middleware to include references to the fe-components API. This package should 
+The package updates the content-security-middleware to include references to the fe-components API. This package should
 be run after Helmet to prevent this being overwritten.
 
-### Shared Data 
+### Shared Data
 
-An optional parameter `includeSharedData: true` can be passed into the `get` methods request options. Setting this will result in a 
-`sharedData` object being added to `res.locals.feComponents` containing data the components have collected to render. 
+An optional parameter `includeSharedData: true` can be passed into the `get` methods request options. Setting this will result in a
+`sharedData` object being added to `res.locals.feComponents` containing data the components have collected to render.
 This includes:
 
 - activeCaseLoad (the active caseload of the user)
@@ -189,19 +192,19 @@ This includes:
 - services (information on services the user has access to used for global navigation)
 - allocationJobResponsibilities (the allocation policy codes the user has the associated job responsibility for. Allocation policy codes are: `KEY_WORKER`, meaning the user is a key worker and `PERSONAL_OFFICER`, meaning the user is a personal officer.)
 
-This can be useful e.g. for when your service needs access to activeCaseLoad information to prevent extra calls to the 
+This can be useful e.g. for when your service needs access to activeCaseLoad information to prevent extra calls to the
 api and takes advantage of the caching that the micro frontend api does.
 
 ### Populating res.locals.user with the shared case load data
 
-Many services typically add case load information to the user object on `res.locals`. This library provides some 
+Many services typically add case load information to the user object on `res.locals`. This library provides some
 optional middleware which populates:
 - `res.locals.user.caseLoads` with all case loads the user has access to
 - `res.locals.user.activeCaseLoad` with the active case load of the user
 - `res.locals.user.activeCaseLoadId` with the id of the active case load
 
-It uses the `sharedData` object if it is present and caches in `req.session` so that any subsequent routes that do not 
-use the component middleware can still use the data. If there is no data in the cache, it will fall back to making a 
+It uses the `sharedData` object if it is present and caches in `req.session` so that any subsequent routes that do not
+use the component middleware can still use the data. If there is no data in the cache, it will fall back to making a
 call to Prison API to retrieve the data using the user token.
 
 To enable this, add the middleware after the component middleware as follows:
@@ -216,7 +219,7 @@ app.use(retrieveCaseLoadData({
 )
 ```
 
-This middleware checks the `res.locals.user.authSource` so ensure that any mock auth data used in tests includes 
+This middleware checks the `res.locals.user.authSource` so ensure that any mock auth data used in tests includes
 `auth_source: 'nomis'` in the response.
 
 ### Populating res.locals.user with the shared allocation job responsibilities
@@ -232,7 +235,7 @@ To enable this, add the middleware after the component middleware as follows:
 
 ```javascript
 import { retrieveAllocationJobResponsibilities } from '@ministryofjustice/hmpps-connect-dps-components'
-app.use(retrieveAllocationJobResponsibilities({ 
+app.use(retrieveAllocationJobResponsibilities({
   logger,
   authenticationClient: new AuthenticationClient(config.apis.hmppsAuth, logger, services.dataAccess.tokenStore),
   allocationsApiConfig: config.apis.allocationsApi,
@@ -244,14 +247,14 @@ This should go after `retrieveCaseLoadData` so that `res.locals.user.activeCaseL
 This middleware checks the `res.locals.user.authSource` so ensure that any mock auth data used in tests includes
 `auth_source: 'nomis'` in the response. It also checks the `res.locals.user.activeCaseLoadId`, which is required for retrieving allocation job responsibilities.
 
-Your service will need to be set up with client credentials in order to use this middleware, although it currently 
+Your service will need to be set up with client credentials in order to use this middleware, although it currently
 does not need any specific role.
 
 ### Note
 
 In the event of a failure to retrieve the components, the package will populate the html fields with fallback components.
-The `feComponents.sharedData` will not be populated, but if you use the retrieveCaseLoadData middleware (see above) it 
-will either take case load data from the cache or make a call to the Prison API to retrieve it.  
+The `feComponents.sharedData` will not be populated, but if you use the retrieveCaseLoadData middleware (see above) it
+will either take case load data from the cache or make a call to the Prison API to retrieve it.
 
 
 ## For library developers:
