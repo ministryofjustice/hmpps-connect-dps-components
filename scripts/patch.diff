@@ -64,7 +64,7 @@ index 6bb4e41..3a2ae46 100644
      AUDIT_ENABLED: "false"
 
 diff --git a/server/app.ts b/server/app.ts
-index eddaa67..0dfb1fe 100755
+index eddaa67..0dfb1fe 100644
 --- a/server/app.ts
 +++ b/server/app.ts
 @@ -1,7 +1,10 @@
@@ -95,7 +95,7 @@ index eddaa67..0dfb1fe 100755
 
    app.use((req, res, next) => next(createError(404, 'Not found')))
 diff --git a/server/config.ts b/server/config.ts
-index e49a07b..9bbba57 100755
+index e49a07b..9bbba57 100644
 --- a/server/config.ts
 +++ b/server/config.ts
 @@ -72,6 +72,15 @@ export default {
