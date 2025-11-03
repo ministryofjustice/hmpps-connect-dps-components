@@ -76,7 +76,7 @@
     "tslib": "^2.8.1"
   },
   "dependencies": {
-    "@ministryofjustice/hmpps-rest-client": "^0.0.3",
+    "@ministryofjustice/hmpps-rest-client": "^1.0.0",
     "@types/node": "^24.9.2",
     "@types/nunjucks": "^3.2.6",
     "nunjucks": "^3.2.4",
