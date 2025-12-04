@@ -26,7 +26,8 @@
     "security_audit": "npx audit-ci --config audit-ci.json",
     "precommit:secrets": "gitleaks git --pre-commit --redact --staged --verbose --config .gitleaks/config.toml",
     "precommit:lint": "lint-staged",
-    "precommit:verify": "npm run typecheck && npm test"
+    "precommit:verify": "npm run typecheck && npm test",
+    "setup": "npm ci && hmpps-npm-script-run-allowlist"
   },
   "lint-staged": {
     "*.{ts,css}": [
@@ -50,6 +51,7 @@
   "devDependencies": {
     "@ministryofjustice/eslint-config-hmpps": "^1.0.0",
     "@ministryofjustice/hmpps-auth-clients": "^1.0.0",
+    "@ministryofjustice/hmpps-npm-script-allowlist": "0.0.3",
     "@ministryofjustice/hmpps-precommit-hooks": "^1.0.2",
     "@rollup/plugin-commonjs": "^29.0.0",
     "@rollup/plugin-multi-entry": "^7.1.0",

@@ -37,7 +37,7 @@ jobs:
       - name: Use latest npm version
         run: npm install -g npm@latest
       - name: Install dependencies
-        run: npm install
+        run: npm run setup
       - name: Test build step
         run: npm run build
       - name: Run unit tests
@@ -56,7 +56,7 @@ jobs:
       - name: Use latest npm version
         run: npm install -g npm@latest
       - name: Install dependencies
-        run: npm install
+        run: npm run setup
       - name: Clean build step
         run: npm run clean
       - name: Test build step
@@ -75,7 +75,7 @@ jobs:
         with:
           node-version: 24
       - name: Install dependencies
-        run: npm install
+        run: npm run setup
       - name: Checkout hmpps-template-typescript repository
         uses: actions/checkout@v5
         with:
@@ -109,7 +109,7 @@ jobs:
       - name: Use latest npm version
         run: npm install -g npm@latest
       - name: Install dependencies
-        run: npm install
+        run: npm run setup
       - name: Build all packages
         run: |
           npm run clean
