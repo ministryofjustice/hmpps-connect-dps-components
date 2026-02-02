@@ -71,7 +71,7 @@ describe('updateCsp', () => {
     expect(res.set).toHaveBeenCalledWith(
       'content-security-policy',
       "default-src 'self';script-src 'self' http://fe-components;style-src 'self' http://fe-components;img-src 'self' http://fe-components;font-src 'self' http://fe-components;" +
-      "connect-src 'self' https://northeurope-0.in.applicationinsights.azure.com *.monitor.azure.com",
+        "connect-src 'self' https://northeurope-0.in.applicationinsights.azure.com *.monitor.azure.com",
     )
   })
 
@@ -91,7 +91,7 @@ describe('updateCsp', () => {
     expect(res.set).toHaveBeenCalledWith(
       'content-security-policy',
       "default-src 'self';script-src 'self' http://fe-components;style-src 'self' http://fe-components;img-src 'self' http://fe-components;font-src 'self' http://fe-components;" +
-      "connect-src 'self' *.something.com https://northeurope-0.in.applicationinsights.azure.com *.monitor.azure.com",
+        "connect-src 'self' *.something.com https://northeurope-0.in.applicationinsights.azure.com *.monitor.azure.com",
     )
   })
 })

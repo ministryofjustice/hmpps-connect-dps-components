@@ -19,10 +19,7 @@ export default function updateCsp(feComponentsUrl: string, res: Response, enable
     .map(p => `${p} 'self' ${feComponentsUrl}`)
 
   if (enableAppInsightsCspUpdate) {
-    const azureDomains = [
-      'https://northeurope-0.in.applicationinsights.azure.com',
-      '*.monitor.azure.com',
-    ]
+    const azureDomains = ['https://northeurope-0.in.applicationinsights.azure.com', '*.monitor.azure.com']
 
     let cspWithAppInsights = [...updatedCspDirectives, ...requiredAndNotPresent]
     const connectIndex = cspWithAppInsights.findIndex(d => d.includes('connect-src'))
@@ -40,5 +37,4 @@ export default function updateCsp(feComponentsUrl: string, res: Response, enable
   } else {
     res.set('content-security-policy', [...updatedCspDirectives, ...requiredAndNotPresent].join(';'))
   }
-
 }
