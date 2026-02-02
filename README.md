@@ -184,7 +184,7 @@ be run after Helmet to prevent this being overwritten.
 It should be noted that, by default, some azure domains for app insights tracking are added to the connect-src csp directive.
 It is possible to opt-out of this by providing the request option `enableAppInsightsCspUpdate`.
 
-```
+```javascript
 getFrontendComponents({
   logger,
   componentApiConfig: config.apis.componentApi,
