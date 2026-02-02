@@ -21,7 +21,7 @@ export default function updateCsp(feComponentsUrl: string, res: Response, enable
   if (enableAppInsightsCspUpdate) {
     const azureDomains = ['https://northeurope-0.in.applicationinsights.azure.com', '*.monitor.azure.com']
 
-    let cspWithAppInsights = [...updatedCspDirectives, ...requiredAndNotPresent]
+    const cspWithAppInsights = [...updatedCspDirectives, ...requiredAndNotPresent]
     const connectIndex = cspWithAppInsights.findIndex(d => d.includes('connect-src'))
     if (connectIndex > -1) {
       azureDomains.forEach(domain => {
