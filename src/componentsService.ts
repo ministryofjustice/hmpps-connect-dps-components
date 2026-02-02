@@ -12,11 +12,13 @@ export interface FrontendComponentRequestOptions {
   environmentName?: 'DEV' | 'PRE-PRODUCTION' | 'PRODUCTION'
   includeSharedData?: boolean
   useFallbacksByDefault?: boolean
+  enableAppInsightsCspUpdate?: boolean
 }
 
 const defaultOptions: Partial<FrontendComponentRequestOptions> = {
   includeSharedData: false,
   useFallbacksByDefault: false,
+  enableAppInsightsCspUpdate: true,
 }
 
 export default class ComponentsService {
@@ -89,7 +91,7 @@ export default class ComponentsService {
           res.locals.feComponents.sharedData = meta
         }
 
-        updateCsp(this.componentApiConfig.url, res)
+        updateCsp(this.componentApiConfig.url, res, requestOptionsWithDefaults.enableAppInsightsCspUpdate)
 
         return next()
         // eslint-disable-next-line @typescript-eslint/no-unused-vars

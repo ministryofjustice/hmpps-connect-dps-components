@@ -176,10 +176,22 @@ of routes. e.g. in `setUpAuthentication.ts` on the `/autherror` path:
 
 This will provide a stripped down header for if there is no user object on `res.locals`.
 
-### CSP
+### CSP and App Insights
 
 The package updates the content-security-middleware to include references to the fe-components API. This package should
 be run after Helmet to prevent this being overwritten.
+
+It should be noted that, by default, some azure domains for app insights tracking are added to the connect-src csp directive.
+It is possible to opt-out of this by providing the request option `enableAppInsightsCspUpdate`.
+
+```
+getFrontendComponents({
+  logger,
+  componentApiConfig: config.apis.componentApi,
+  dpsUrl: config.serviceUrls.digitalPrison,
+  requestOptions: { enableAppInsightsCspUpdate: false },
+})
+```
 
 ### Shared Data
 
