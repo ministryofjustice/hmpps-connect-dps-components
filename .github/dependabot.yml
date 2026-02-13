@@ -6,6 +6,9 @@ updates:
       - dependency-name: "@types/node"
         versions:
           - ">=25"
+      - dependency-name: "govuk-frontend"
+        versions:
+          - ">=6"
     schedule:
       interval: weekly
       day: wednesday
