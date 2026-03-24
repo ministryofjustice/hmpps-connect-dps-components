@@ -92,8 +92,7 @@ export default class ComponentsService {
         updateCsp(this.componentApiConfig.url, res)
 
         return next()
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (_error) {
+      } catch {
         this.logger.error('Failed to retrieve front end components, using fallbacks')
         useFallbacks(res.locals.user)
         return next()
