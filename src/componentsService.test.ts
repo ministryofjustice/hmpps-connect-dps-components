@@ -39,9 +39,10 @@ function setupApp(
   )
 
   const loggerMock = {
+    debug: jest.fn(),
     info: jest.fn(),
+    warn: jest.fn(),
     error: jest.fn(),
-    warning: jest.fn(),
   } as unknown as Logger
 
   const componentsService = ComponentsService.create({
