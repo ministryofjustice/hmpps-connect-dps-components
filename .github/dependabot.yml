@@ -9,6 +9,13 @@ updates:
       - dependency-name: "govuk-frontend"
         versions:
           - ">=6"
+      - dependency-name: "typescript"
+        versions:
+          - ">=6"
+    cooldown:
+      default-days: 5
+      exclude:
+        - "@ministryofjustice/*"
     schedule:
       interval: weekly
       day: wednesday
@@ -17,6 +24,18 @@ updates:
         dependency-type: "development"
 
   - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: wednesday
+    cooldown:
+      default-days: 5
+      exclude:
+        - "ministryofjustice/*"
+
+  - package-ecosystem: pre-commit
+    cooldown:
+      default-days: 5
     directory: /
     schedule:
       interval: weekly
