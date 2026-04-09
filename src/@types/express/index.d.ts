@@ -1,7 +1,7 @@
-import CaseLoad from '../../types/CaseLoad'
-import HeaderFooterSharedData from '../../types/HeaderFooterSharedData'
-import { HmppsUser } from '../../types/HmppsUser'
-import { AllocationJobResponsibility } from '../../types/AllocationJobResponsibility'
+import type { AllocationJobResponsibility } from '../../types/AllocationJobResponsibility'
+import type CaseLoad from '../../types/CaseLoad'
+import type { HmppsUser } from '../../types/HmppsUser'
+import type SharedData from '../../types/SharedData'
 
 export default {}
 
@@ -19,7 +19,7 @@ export declare global {
       footer: string
       cssIncludes: string[]
       jsIncludes: string[]
-      sharedData?: HeaderFooterSharedData
+      sharedData?: SharedData
     }
 
     interface Request {

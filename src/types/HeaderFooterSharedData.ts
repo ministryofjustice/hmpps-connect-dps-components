@@ -1,15 +1,13 @@
-import CaseLoad from './CaseLoad'
-import Service from './Service'
-import { AllocationJobResponsibility } from './AllocationJobResponsibility'
+import type SharedData from './SharedData'
 
-export default interface HeaderFooterSharedData {
-  activeCaseLoad?: CaseLoad
-  caseLoads: CaseLoad[]
-  services: Service[]
-  allocationJobResponsibilities: AllocationJobResponsibility[]
-}
+/** @deprecated: use `SharedData` directly */
+export type HeaderFooterSharedData = SharedData
 
+/** @deprecated: use `SharedData` directly */
+export default HeaderFooterSharedData
+
+/** @deprecated: use `SharedData` directly, the meta information is the same for all components */
 export interface ComponentsSharedData {
-  header: HeaderFooterSharedData
-  footer: HeaderFooterSharedData
+  header: SharedData
+  footer: SharedData
 }

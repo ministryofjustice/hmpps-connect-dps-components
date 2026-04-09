@@ -1,11 +1,11 @@
 import { ApiConfig, RestClient } from '@ministryofjustice/hmpps-rest-client'
-import AvailableComponent from '../../types/AvailableComponent'
-import Component from '../../types/Component'
-import { ConnectDpsComponentLogger } from '../../types/ConnectDpsComponentLogger'
-import { ComponentsSharedData } from '../../types/HeaderFooterSharedData'
+import type AvailableComponent from '../../types/AvailableComponent'
+import type Component from '../../types/Component'
+import type { ConnectDpsComponentLogger } from '../../types/ConnectDpsComponentLogger'
+import type SharedData from '../../types/SharedData'
 
 export type ComponentsApiResponse<T extends AvailableComponent[]> = Record<T[number], Component> & {
-  meta: ComponentsSharedData[T[number]] // TODO: rename 'meta' in the API response
+  meta: SharedData
 }
 
 export default class ComponentApiClient extends RestClient {
