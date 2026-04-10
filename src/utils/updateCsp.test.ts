@@ -30,7 +30,7 @@ describe('updateCsp', () => {
 
     expect(res.set).toHaveBeenCalledWith(
       'content-security-policy',
-      "script-src 'self' http://fe-components;style-src 'self' http://fe-components;img-src 'self' http://fe-components;font-src 'self' http://fe-components",
+      "default-src 'self';script-src 'self' http://fe-components;style-src 'self' http://fe-components;img-src 'self' http://fe-components;font-src 'self' http://fe-components",
     )
   })
 

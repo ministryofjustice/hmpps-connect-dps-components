@@ -1,8 +1,6 @@
 import type { Response } from 'express'
 import type { CspDirectives } from '../types/CspDirectives'
 
-// TODO: add `default-src 'self'` if header was empty?
-
 /** Update Content-Security-Policy header in response to allow use of MFE components on another domain/origin */
 export default function updateCsp(feComponentsUrl: string, res: Response) {
   const cspHeader = res.get('content-security-policy')
@@ -24,8 +22,9 @@ function fallbackDirectives(feComponentsUrl: string): CspDirectives {
 }
 
 function directivesFromHeader(cspHeader: string | undefined): CspDirectives {
+  const header = cspHeader || "default-src 'self'"
   return Object.fromEntries(
-    (cspHeader?.split(';') ?? []).map(line => {
+    (header.split(';') ?? []).map(line => {
       const [directive, ...values] = line.split(/\s+/)
       return [directive, values]
     }),
