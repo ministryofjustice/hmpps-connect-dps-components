@@ -1,16 +1,15 @@
-import { type Response } from 'express'
+import type { Response } from 'express'
 import updateCsp from './updateCsp'
 
-describe('updateCsp', () => {
-  beforeEach(() => {
-    jest.resetAllMocks()
-  })
+const mockResponse = (cspHeader?: string): Response =>
+  ({
+    get: jest.fn(() => cspHeader),
+    set: jest.fn(),
+  }) as unknown as Response
 
+describe('updateCsp', () => {
   it('should add fe-components url to CSP directives', () => {
-    const res = {
-      get: jest.fn(() => "default-src 'self';script-src 'self';style-src 'self';img-src 'self';font-src 'self'"),
-      set: jest.fn(),
-    } as unknown as Response
+    const res = mockResponse("default-src 'self';script-src 'self';style-src 'self';img-src 'self';font-src 'self'")
 
     updateCsp('http://fe-components', res)
 
@@ -21,10 +20,7 @@ describe('updateCsp', () => {
   })
 
   it('should add required directives when CSP header is not set', () => {
-    const res = {
-      get: jest.fn(),
-      set: jest.fn(),
-    } as unknown as Response
+    const res = mockResponse()
 
     updateCsp('http://fe-components', res)
 
@@ -35,10 +31,7 @@ describe('updateCsp', () => {
   })
 
   it('should add required directives that are not present', () => {
-    const res = {
-      get: jest.fn(() => "default-src 'self'"),
-      set: jest.fn(),
-    } as unknown as Response
+    const res = mockResponse("default-src 'self'")
 
     updateCsp('http://fe-components', res)
 
@@ -49,13 +42,9 @@ describe('updateCsp', () => {
   })
 
   it('should not change any with existing reference to fe-components', () => {
-    const res = {
-      get: jest.fn(
-        () =>
-          "default-src 'self';script-src 'self' http://fe-components;style-src 'self' http://fe-components;img-src 'self' http://fe-components;font-src 'self'",
-      ),
-      set: jest.fn(),
-    } as unknown as Response
+    const res = mockResponse(
+      "default-src 'self';script-src 'self' http://fe-components;style-src 'self' http://fe-components;img-src 'self' http://fe-components;font-src 'self'",
+    )
 
     updateCsp('http://fe-components', res)
 
@@ -66,10 +55,7 @@ describe('updateCsp', () => {
   })
 
   it('should not confuse values that look like directive names', () => {
-    const res = {
-      get: jest.fn(() => "default-src 'self' http://script-src http://localhost"),
-      set: jest.fn(),
-    } as unknown as Response
+    const res = mockResponse("default-src 'self' http://script-src http://localhost")
 
     updateCsp('http://fe-components', res)
 
