@@ -4,7 +4,10 @@ import type Component from '../../types/Component'
 import type { ConnectDpsComponentLogger } from '../../types/ConnectDpsComponentLogger'
 import type SharedData from '../../types/SharedData'
 
-export type ComponentsApiResponse<T extends AvailableComponent[]> = Record<T[number], Component> & {
+export type ComponentsApiResponse<T extends AvailableComponent[] = AvailableComponent[]> = Record<
+  T[number],
+  Component
+> & {
   meta: SharedData
 }
 

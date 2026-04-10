@@ -14,7 +14,7 @@ export interface FrontendComponentRequestOptions {
   useFallbacksByDefault?: boolean
 }
 
-const defaultOptions: Partial<FrontendComponentRequestOptions> = {
+const defaultOptions: FrontendComponentRequestOptions = {
   includeSharedData: false,
   useFallbacksByDefault: false,
 }

@@ -4,15 +4,23 @@ import request from 'supertest'
 import nock from 'nock'
 import * as cheerio from 'cheerio'
 import Logger from 'bunyan'
+import type { ComponentsApiResponse } from './data/componentApi/componentApiClient'
 import ComponentsService from './componentsService'
 import { HmppsUser, PrisonUser, ProbationUser } from './types/HmppsUser'
 
 const prisonUser = { token: 'token', authSource: 'nomis', displayName: 'Edwin Shannon' } as PrisonUser
 const probationUser = { token: 'token', authSource: 'delius', displayName: 'Edwin Shannon' } as ProbationUser
-const apiResponse = {
+
+const apiResponse: ComponentsApiResponse = {
   header: { html: 'header', css: ['header.css'], javascript: ['header.js'] },
-  footer: { html: 'footer', css: ['footer.css'], javascript: ['footer.js'] },
-  meta: { shared: 'data' },
+  footer: { html: 'footer', css: ['footer.css'], javascript: [] },
+  meta: {
+    caseLoads: [],
+    activeCaseLoad: null,
+    services: [],
+    allocationJobResponsibilities: [],
+    cspDirectives: {},
+  },
 }
 
 function setupApp(
@@ -94,7 +102,7 @@ describe('getFrontendComponents', () => {
           header: 'header',
           footer: 'footer',
           cssIncludes: ['header.css', 'footer.css'],
-          jsIncludes: ['header.js', 'footer.js'],
+          jsIncludes: ['header.js'],
         },
       })
   })
@@ -278,8 +286,14 @@ describe('getFrontendComponents', () => {
             header: 'header',
             footer: 'footer',
             cssIncludes: ['header.css', 'footer.css'],
-            jsIncludes: ['header.js', 'footer.js'],
-            sharedData: { shared: 'data' },
+            jsIncludes: ['header.js'],
+            sharedData: {
+              caseLoads: [],
+              activeCaseLoad: null,
+              services: [],
+              allocationJobResponsibilities: [],
+              cspDirectives: {},
+            },
           },
         })
     })
