@@ -5,8 +5,8 @@ import nock from 'nock'
 import * as cheerio from 'cheerio'
 import Logger from 'bunyan'
 import type { ComponentsApiResponse } from './data/componentApi/componentApiClient'
+import type { HmppsUser, PrisonUser, ProbationUser } from './types/HmppsUser'
 import ComponentsService from './componentsService'
-import { HmppsUser, PrisonUser, ProbationUser } from './types/HmppsUser'
 
 const prisonUser = { token: 'token', authSource: 'nomis', displayName: 'Edwin Shannon' } as PrisonUser
 const probationUser = { token: 'token', authSource: 'delius', displayName: 'Edwin Shannon' } as ProbationUser
@@ -26,13 +26,13 @@ const apiResponse: ComponentsApiResponse = {
 function setupApp(
   {
     user,
-    includeSharedData,
-    useFallbacksByDefault,
+    includeSharedData = false,
+    useFallbacksByDefault = false,
   }: {
     user?: HmppsUser
     includeSharedData?: boolean
     useFallbacksByDefault?: boolean
-  } = { user: prisonUser, includeSharedData: false, useFallbacksByDefault: false },
+  } = { user: prisonUser },
 ): express.Application {
   const app = express()
   app.use((_req, res, next) => {
@@ -91,7 +91,7 @@ afterEach(() => {
 })
 
 describe('getFrontendComponents', () => {
-  it('should call fe components api and attach header and footer html with all css and js combined', async () => {
+  it('should call fe components api and attach header and footer html with all css and js combined', () => {
     componentsApi.get('/components?component=header&component=footer').reply(200, apiResponse)
 
     return request(setupApp())
@@ -109,7 +109,7 @@ describe('getFrontendComponents', () => {
 
   describe('fallbacks', () => {
     describe('when prison user', () => {
-      it('should provide a fallback header', async () => {
+      it('should provide a fallback header', () => {
         componentsApi
           .get('/components?component=header&component=footer')
           .reply(500)
@@ -132,7 +132,7 @@ describe('getFrontendComponents', () => {
           })
       })
 
-      it('should provide a fallback footer', async () => {
+      it('should provide a fallback footer', () => {
         componentsApi
           .get('/components?component=header&component=footer')
           .reply(500)
@@ -155,7 +155,7 @@ describe('getFrontendComponents', () => {
     })
 
     describe('when non-prison user', () => {
-      it('should provide a fallback header', async () => {
+      it('should provide a fallback header', () => {
         componentsApi
           .get('/components?component=header&component=footer')
           .reply(500)
@@ -178,7 +178,7 @@ describe('getFrontendComponents', () => {
           })
       })
 
-      it('should provide a fallback footer', async () => {
+      it('should provide a fallback footer', () => {
         componentsApi
           .get('/components?component=header&component=footer')
           .reply(500)
@@ -202,7 +202,7 @@ describe('getFrontendComponents', () => {
     })
 
     describe('when no user', () => {
-      it('should provide a fallback header', async () => {
+      it('should provide a fallback header', () => {
         return request(setupApp({ user: undefined }))
           .get('/')
           .expect('Content-Type', /json/)
@@ -219,7 +219,7 @@ describe('getFrontendComponents', () => {
           })
       })
 
-      it('should provide a fallback footer', async () => {
+      it('should provide a fallback footer', () => {
         return request(setupApp({ user: undefined }))
           .get('/')
           .expect('Content-Type', /json/)
@@ -236,7 +236,7 @@ describe('getFrontendComponents', () => {
     })
 
     describe('when configured to only use fallbacks', () => {
-      it('should provide a fallback header', async () => {
+      it('should provide a fallback header', () => {
         componentsApi.get('/components?component=header&component=footer').reply(200, apiResponse)
 
         return request(setupApp({ user: prisonUser, useFallbacksByDefault: true }))
@@ -255,7 +255,7 @@ describe('getFrontendComponents', () => {
           })
       })
 
-      it('should provide a fallback footer', async () => {
+      it('should provide a fallback footer', () => {
         componentsApi.get('/components?component=header&component=footer').reply(200, apiResponse)
 
         return request(setupApp({ user: prisonUser, useFallbacksByDefault: true }))
@@ -275,7 +275,7 @@ describe('getFrontendComponents', () => {
   })
 
   describe('shared data', () => {
-    it('should include shared data if includeSharedData is true', async () => {
+    it('should include shared data if includeSharedData is true', () => {
       componentsApi.get('/components?component=header&component=footer').reply(200, apiResponse)
 
       return request(setupApp({ user: prisonUser, includeSharedData: true }))
