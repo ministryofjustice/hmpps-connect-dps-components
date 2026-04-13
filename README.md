@@ -176,10 +176,22 @@ of routes. e.g. in `setUpAuthentication.ts` on the `/autherror` path:
 
 This will provide a stripped down header for if there is no user object on `res.locals`.
 
-### CSP
+### Content-Security-Policy
 
-The package updates the content-security-middleware to include references to the fe-components API. This package should
-be run after Helmet to prevent this being overwritten.
+The package updates the Content-Security-Policy response header (often set by [helmet middleware](https://www.npmjs.com/package/helmet))
+to permit cross-domain/origin access to the FE components API.
+This package should be run after helmet and other security middleware to prevent this being overwritten.
+
+There is a new parameter (which will become on by default in future) to use CSP directives as provided by the FE components API:
+
+```javascript
+app.use(getFrontendComponents({
+  logger,
+  componentApiConfig: config.apis.componentApi,
+  dpsUrl: config.serviceUrls.digitalPrison,
+  requestOptions: { updateContentSecurityPolicy: true }, // ← updateContentSecurityPolicy is false by default
+}))
+```
 
 ### Shared Data
 
@@ -191,6 +203,7 @@ This includes:
 - caseLoads (all caseloads the user has access to)
 - services (information on services the user has access to used for global navigation)
 - allocationJobResponsibilities (the allocation policy codes the user has the associated job responsibility for. Allocation policy codes are: `KEY_WORKER`, meaning the user is a key worker and `PERSONAL_OFFICER`, meaning the user is a personal officer.)
+- cspDirectives (Content-Security-Policy directives needed to use components from a different domain/origin)
 
 This can be useful e.g. for when your service needs access to activeCaseLoad information to prevent extra calls to the
 api and takes advantage of the caching that the micro frontend api does.
