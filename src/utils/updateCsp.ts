@@ -26,13 +26,11 @@ export default function updateCsp(arg1: UpdateCspOptions | string, arg2?: Respon
     // eslint-disable-next-line no-param-reassign
     arg1 = { feComponentsUrl: arg1, res: arg2! }
   }
-  const { feComponentsUrl, res } = arg1
-
-  // TODO: directives parameter is ignored!
+  const { directives: providedDirectives, feComponentsUrl, res } = arg1
 
   const cspHeader = res.get('content-security-policy')
   const directives: CspDirectives = directivesFromHeader(cspHeader)
-  const requiredDirectives = fallbackDirectives(feComponentsUrl)
+  const requiredDirectives = providedDirectives ?? fallbackDirectives(feComponentsUrl)
   mergeDirectives(directives, requiredDirectives)
   const newCspHeader = headerFromDirectives(directives)
   res.set('content-security-policy', newCspHeader)
