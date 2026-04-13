@@ -19,7 +19,7 @@ const apiResponse: ComponentsApiResponse = {
     activeCaseLoad: null,
     services: [],
     allocationJobResponsibilities: [],
-    cspDirectives: {},
+    cspDirectives: { 'style-src': ['http://localhost'] },
   },
 }
 
@@ -28,10 +28,12 @@ function setupApp(
     user,
     includeSharedData = false,
     useFallbacksByDefault = false,
+    updateContentSecurityPolicy = false,
   }: {
     user?: HmppsUser
     includeSharedData?: boolean
     useFallbacksByDefault?: boolean
+    updateContentSecurityPolicy?: boolean
   } = { user: prisonUser },
 ): express.Application {
   const app = express()
@@ -57,8 +59,8 @@ function setupApp(
     logger: loggerMock,
     componentApiConfig: {
       url: 'http://fe-components',
-      timeout: { deadline: 2500, response: 2500 },
-      agent: { timeout: 2500 },
+      timeout: { deadline: 100, response: 100 },
+      agent: { timeout: 100 },
     },
     dpsUrl: 'http://dpsUrl',
   })
@@ -69,6 +71,7 @@ function setupApp(
       supportUrl: 'http://supportUrl',
       includeSharedData,
       useFallbacksByDefault,
+      updateContentSecurityPolicy,
     }),
   )
 
@@ -292,10 +295,44 @@ describe('getFrontendComponents', () => {
               activeCaseLoad: null,
               services: [],
               allocationJobResponsibilities: [],
-              cspDirectives: {},
+              cspDirectives: { 'style-src': ['http://localhost'] },
             },
           },
         })
     })
+  })
+
+  describe('Content-Security-Policy header', () => {
+    it.each([
+      { scenario: 'not be updated', updateContentSecurityPolicy: false },
+      { scenario: 'be updated', updateContentSecurityPolicy: true },
+    ])(
+      'should $scenario from MFE response if updateContentSecurityPolicy is $updateContentSecurityPolicy',
+      ({ updateContentSecurityPolicy }) => {
+        componentsApi.get('/components?component=header&component=footer').reply(200, apiResponse)
+
+        return request(setupApp({ user: prisonUser, updateContentSecurityPolicy }))
+          .get('/')
+          .expect('Content-Type', /json/)
+          .expect(200, {
+            feComponents: {
+              header: 'header',
+              footer: 'footer',
+              cssIncludes: ['header.css', 'footer.css'],
+              jsIncludes: ['header.js'],
+            },
+          })
+          .expect(res => {
+            expect(res.headers).toHaveProperty(
+              'content-security-policy',
+              updateContentSecurityPolicy
+                ? // from MFE response
+                  "default-src 'self';style-src 'self' http://localhost"
+                : // using built-in fallback
+                  "default-src 'self';script-src 'self' http://fe-components;style-src 'self' http://fe-components;img-src 'self' http://fe-components;font-src 'self' http://fe-components",
+            )
+          })
+      },
+    )
   })
 })
