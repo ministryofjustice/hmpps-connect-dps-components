@@ -1,8 +1,35 @@
 import type { Response } from 'express'
 import type { CspDirectives } from '../types/CspDirectives'
 
-/** Update Content-Security-Policy header in response to allow use of MFE components on another domain/origin */
-export default function updateCsp(feComponentsUrl: string, res: Response) {
+export interface UpdateCspOptions {
+  /** Content-Security-Policy directives to merge into response’s header */
+  directives?: CspDirectives
+  /** Base URL of MFE components service for fallback Content-Security-Policy directives */
+  feComponentsUrl: string
+  /** The express response whose Content-Security-Policy header should be updated */
+  res: Response
+}
+
+/**
+ * Update Content-Security-Policy header in response to allow use of MFE components on another domain/origin
+ * with given directives, falling back to predefined directives known to be required
+ */
+export default function updateCsp(options: UpdateCspOptions): void
+/**
+ * Update Content-Security-Policy header in response to allow use of MFE components on another domain/origin
+ * using predefined directives known to be required
+ * @deprecated provide options to `updateCsp` as a single object
+ */
+export default function updateCsp(feComponentsUrl: string, res: Response): void
+export default function updateCsp(arg1: UpdateCspOptions | string, arg2?: Response): void {
+  if (typeof arg1 === 'string') {
+    // eslint-disable-next-line no-param-reassign
+    arg1 = { feComponentsUrl: arg1, res: arg2! }
+  }
+  const { feComponentsUrl, res } = arg1
+
+  // TODO: directives parameter is ignored!
+
   const cspHeader = res.get('content-security-policy')
   const directives: CspDirectives = directivesFromHeader(cspHeader)
   const requiredDirectives = fallbackDirectives(feComponentsUrl)
