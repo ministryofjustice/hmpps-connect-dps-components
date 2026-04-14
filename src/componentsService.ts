@@ -14,7 +14,7 @@ export interface FrontendComponentRequestOptions {
   useFallbacksByDefault?: boolean
   /**
    * Update Content-Security-Policy with directives returned by MFE components service
-   * (instead of predefined directives); false by default
+   * (instead of built-in fallback set); true by default
    */
   updateContentSecurityPolicy?: boolean
 }
@@ -22,7 +22,7 @@ export interface FrontendComponentRequestOptions {
 const defaultOptions: FrontendComponentRequestOptions = {
   includeSharedData: false,
   useFallbacksByDefault: false,
-  updateContentSecurityPolicy: false,
+  updateContentSecurityPolicy: true,
 }
 
 export default class ComponentsService {

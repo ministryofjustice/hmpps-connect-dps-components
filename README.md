@@ -182,14 +182,15 @@ The package updates the Content-Security-Policy response header (often set by [h
 to permit cross-domain/origin access to the FE components API.
 This package should be run after helmet and other security middleware to prevent this being overwritten.
 
-There is a new parameter (which will become on by default in future) to use CSP directives as provided by the FE components API:
+The necessary directives are provided in the FE components API response tailored to the current user.
+To _prevent_ the use of these dynamic directives and use an in-built fallback set, set this request option:
 
 ```javascript
 app.use(getFrontendComponents({
   logger,
   componentApiConfig: config.apis.componentApi,
   dpsUrl: config.serviceUrls.digitalPrison,
-  requestOptions: { updateContentSecurityPolicy: true }, // ← updateContentSecurityPolicy is false by default
+  requestOptions: { updateContentSecurityPolicy: false }, // ← updateContentSecurityPolicy is true by default
 }))
 ```
 
