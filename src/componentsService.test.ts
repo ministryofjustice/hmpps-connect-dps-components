@@ -4,27 +4,37 @@ import request from 'supertest'
 import nock from 'nock'
 import * as cheerio from 'cheerio'
 import Logger from 'bunyan'
+import type { ComponentsApiResponse } from './data/componentApi/componentApiClient'
+import type { HmppsUser, PrisonUser, ProbationUser } from './types/HmppsUser'
 import ComponentsService from './componentsService'
-import { HmppsUser, PrisonUser, ProbationUser } from './types/HmppsUser'
 
 const prisonUser = { token: 'token', authSource: 'nomis', displayName: 'Edwin Shannon' } as PrisonUser
 const probationUser = { token: 'token', authSource: 'delius', displayName: 'Edwin Shannon' } as ProbationUser
-const apiResponse = {
+
+const apiResponse: ComponentsApiResponse = {
   header: { html: 'header', css: ['header.css'], javascript: ['header.js'] },
-  footer: { html: 'footer', css: ['footer.css'], javascript: ['footer.js'] },
-  meta: { shared: 'data' },
+  footer: { html: 'footer', css: ['footer.css'], javascript: [] },
+  meta: {
+    caseLoads: [],
+    activeCaseLoad: null,
+    services: [],
+    allocationJobResponsibilities: [],
+    cspDirectives: { 'style-src': ['http://localhost'] },
+  },
 }
 
 function setupApp(
   {
     user,
-    includeSharedData,
-    useFallbacksByDefault,
+    includeSharedData = false,
+    useFallbacksByDefault = false,
+    updateContentSecurityPolicy = false,
   }: {
     user?: HmppsUser
     includeSharedData?: boolean
     useFallbacksByDefault?: boolean
-  } = { user: prisonUser, includeSharedData: false, useFallbacksByDefault: false },
+    updateContentSecurityPolicy?: boolean
+  } = { user: prisonUser },
 ): express.Application {
   const app = express()
   app.use((_req, res, next) => {
@@ -49,8 +59,8 @@ function setupApp(
     logger: loggerMock,
     componentApiConfig: {
       url: 'http://fe-components',
-      timeout: { deadline: 2500, response: 2500 },
-      agent: { timeout: 2500 },
+      timeout: { deadline: 100, response: 100 },
+      agent: { timeout: 100 },
     },
     dpsUrl: 'http://dpsUrl',
   })
@@ -61,6 +71,7 @@ function setupApp(
       supportUrl: 'http://supportUrl',
       includeSharedData,
       useFallbacksByDefault,
+      updateContentSecurityPolicy,
     }),
   )
 
@@ -83,7 +94,7 @@ afterEach(() => {
 })
 
 describe('getFrontendComponents', () => {
-  it('should call fe components api and attach header and footer html with all css and js combined', async () => {
+  it('should call fe components api and attach header and footer html with all css and js combined', () => {
     componentsApi.get('/components?component=header&component=footer').reply(200, apiResponse)
 
     return request(setupApp())
@@ -94,14 +105,14 @@ describe('getFrontendComponents', () => {
           header: 'header',
           footer: 'footer',
           cssIncludes: ['header.css', 'footer.css'],
-          jsIncludes: ['header.js', 'footer.js'],
+          jsIncludes: ['header.js'],
         },
       })
   })
 
   describe('fallbacks', () => {
     describe('when prison user', () => {
-      it('should provide a fallback header', async () => {
+      it('should provide a fallback header', () => {
         componentsApi
           .get('/components?component=header&component=footer')
           .reply(500)
@@ -124,7 +135,7 @@ describe('getFrontendComponents', () => {
           })
       })
 
-      it('should provide a fallback footer', async () => {
+      it('should provide a fallback footer', () => {
         componentsApi
           .get('/components?component=header&component=footer')
           .reply(500)
@@ -147,7 +158,7 @@ describe('getFrontendComponents', () => {
     })
 
     describe('when non-prison user', () => {
-      it('should provide a fallback header', async () => {
+      it('should provide a fallback header', () => {
         componentsApi
           .get('/components?component=header&component=footer')
           .reply(500)
@@ -170,7 +181,7 @@ describe('getFrontendComponents', () => {
           })
       })
 
-      it('should provide a fallback footer', async () => {
+      it('should provide a fallback footer', () => {
         componentsApi
           .get('/components?component=header&component=footer')
           .reply(500)
@@ -194,7 +205,7 @@ describe('getFrontendComponents', () => {
     })
 
     describe('when no user', () => {
-      it('should provide a fallback header', async () => {
+      it('should provide a fallback header', () => {
         return request(setupApp({ user: undefined }))
           .get('/')
           .expect('Content-Type', /json/)
@@ -211,7 +222,7 @@ describe('getFrontendComponents', () => {
           })
       })
 
-      it('should provide a fallback footer', async () => {
+      it('should provide a fallback footer', () => {
         return request(setupApp({ user: undefined }))
           .get('/')
           .expect('Content-Type', /json/)
@@ -228,7 +239,7 @@ describe('getFrontendComponents', () => {
     })
 
     describe('when configured to only use fallbacks', () => {
-      it('should provide a fallback header', async () => {
+      it('should provide a fallback header', () => {
         componentsApi.get('/components?component=header&component=footer').reply(200, apiResponse)
 
         return request(setupApp({ user: prisonUser, useFallbacksByDefault: true }))
@@ -247,7 +258,7 @@ describe('getFrontendComponents', () => {
           })
       })
 
-      it('should provide a fallback footer', async () => {
+      it('should provide a fallback footer', () => {
         componentsApi.get('/components?component=header&component=footer').reply(200, apiResponse)
 
         return request(setupApp({ user: prisonUser, useFallbacksByDefault: true }))
@@ -267,7 +278,7 @@ describe('getFrontendComponents', () => {
   })
 
   describe('shared data', () => {
-    it('should include shared data if includeSharedData is true', async () => {
+    it('should include shared data if includeSharedData is true', () => {
       componentsApi.get('/components?component=header&component=footer').reply(200, apiResponse)
 
       return request(setupApp({ user: prisonUser, includeSharedData: true }))
@@ -278,10 +289,50 @@ describe('getFrontendComponents', () => {
             header: 'header',
             footer: 'footer',
             cssIncludes: ['header.css', 'footer.css'],
-            jsIncludes: ['header.js', 'footer.js'],
-            sharedData: { shared: 'data' },
+            jsIncludes: ['header.js'],
+            sharedData: {
+              caseLoads: [],
+              activeCaseLoad: null,
+              services: [],
+              allocationJobResponsibilities: [],
+              cspDirectives: { 'style-src': ['http://localhost'] },
+            },
           },
         })
     })
+  })
+
+  describe('Content-Security-Policy header', () => {
+    it.each([
+      { scenario: 'not be updated', updateContentSecurityPolicy: false },
+      { scenario: 'be updated', updateContentSecurityPolicy: true },
+    ])(
+      'should $scenario from MFE response if updateContentSecurityPolicy is $updateContentSecurityPolicy',
+      ({ updateContentSecurityPolicy }) => {
+        componentsApi.get('/components?component=header&component=footer').reply(200, apiResponse)
+
+        return request(setupApp({ user: prisonUser, updateContentSecurityPolicy }))
+          .get('/')
+          .expect('Content-Type', /json/)
+          .expect(200, {
+            feComponents: {
+              header: 'header',
+              footer: 'footer',
+              cssIncludes: ['header.css', 'footer.css'],
+              jsIncludes: ['header.js'],
+            },
+          })
+          .expect(res => {
+            expect(res.headers).toHaveProperty(
+              'content-security-policy',
+              updateContentSecurityPolicy
+                ? // from MFE response
+                  "default-src 'self';style-src 'self' http://localhost"
+                : // using built-in fallback
+                  "default-src 'self';script-src 'self' http://fe-components;style-src 'self' http://fe-components;img-src 'self' http://fe-components;font-src 'self' http://fe-components",
+            )
+          })
+      },
+    )
   })
 })

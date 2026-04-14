@@ -1,4 +1,4 @@
-import { type NextFunction, type Request, type Response, type RequestHandler } from 'express'
+import type { RequestHandler } from 'express'
 import { ApiConfig } from '@ministryofjustice/hmpps-rest-client'
 import ComponentApiClient from './data/componentApi/componentApiClient'
 import { getFallbackFooter, getFallbackHeader } from './utils/fallbacks'
@@ -12,11 +12,17 @@ export interface FrontendComponentRequestOptions {
   environmentName?: 'DEV' | 'PRE-PRODUCTION' | 'PRODUCTION'
   includeSharedData?: boolean
   useFallbacksByDefault?: boolean
+  /**
+   * Update Content-Security-Policy with directives returned by MFE components service
+   * (instead of predefined directives); false by default
+   */
+  updateContentSecurityPolicy?: boolean
 }
 
-const defaultOptions: Partial<FrontendComponentRequestOptions> = {
+const defaultOptions: FrontendComponentRequestOptions = {
   includeSharedData: false,
   useFallbacksByDefault: false,
+  updateContentSecurityPolicy: false,
 }
 
 export default class ComponentsService {
@@ -44,9 +50,9 @@ export default class ComponentsService {
       ...defaultOptions,
       ...(requestOptions || {}),
     }
-    const { includeSharedData, useFallbacksByDefault } = requestOptionsWithDefaults
+    const { includeSharedData, useFallbacksByDefault, updateContentSecurityPolicy } = requestOptionsWithDefaults
 
-    return async (_req: Request, res: Response, next: NextFunction) => {
+    return async (_req, res, next) => {
       const useFallbacks = (user: HmppsUser | null) => {
         res.locals.feComponents = {
           header: getFallbackHeader(user, this.dpsUrl, {
@@ -89,7 +95,11 @@ export default class ComponentsService {
           res.locals.feComponents.sharedData = meta
         }
 
-        updateCsp(this.componentApiConfig.url, res)
+        updateCsp({
+          directives: updateContentSecurityPolicy ? meta?.cspDirectives : undefined,
+          feComponentsUrl: this.componentApiConfig.url,
+          res,
+        })
 
         return next()
       } catch {

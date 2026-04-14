@@ -32,7 +32,7 @@ export default class CaseLoadService {
           // Update cache with values from res.feComponents.sharedData if present
           if (res.locals.feComponents && res.locals.feComponents.sharedData) {
             req.session.caseLoads = res.locals.feComponents.sharedData.caseLoads
-            req.session.activeCaseLoad = res.locals.feComponents.sharedData.activeCaseLoad
+            req.session.activeCaseLoad = res.locals.feComponents.sharedData.activeCaseLoad ?? undefined
             req.session.activeCaseLoadId = res.locals.feComponents.sharedData.activeCaseLoad?.caseLoadId
           }
 

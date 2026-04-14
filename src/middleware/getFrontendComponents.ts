@@ -1,7 +1,7 @@
 import { type RequestHandler } from 'express'
 import ComponentsService, { FrontendComponentRequestOptions } from '../componentsService'
 
-type MiddlewareOptions = {
+export type FrontendComponentsMiddlewareOptions = {
   requestOptions?: FrontendComponentRequestOptions
 } & Parameters<typeof ComponentsService.create>[0]
 
@@ -10,7 +10,7 @@ export default function getFrontendComponents({
   componentApiConfig,
   dpsUrl,
   requestOptions,
-}: MiddlewareOptions): RequestHandler {
+}: FrontendComponentsMiddlewareOptions): RequestHandler {
   const service = ComponentsService.create({ logger, componentApiConfig, dpsUrl })
   return service.getFrontendComponents(requestOptions)
 }
