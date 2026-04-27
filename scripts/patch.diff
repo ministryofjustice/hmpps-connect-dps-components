@@ -93,7 +93,7 @@ index eddaa67..0dfb1fe 100644
 +
    app.use(routes(services))
 
-   app.use((req, res, next) => next(createError(404, 'Not found')))
+   app.use((_req, _res, next) => next(createError(404, 'Not found')))
 diff --git a/server/config.ts b/server/config.ts
 index e49a07b..9bbba57 100644
 --- a/server/config.ts
