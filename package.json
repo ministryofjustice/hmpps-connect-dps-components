@@ -79,7 +79,7 @@
     "typescript": "6.0.3"
   },
   "dependencies": {
-    "@ministryofjustice/hmpps-rest-client": "1.2.1",
+    "@ministryofjustice/hmpps-rest-client": "2.1.0",
     "@types/node": "24.12.2",
     "@types/nunjucks": "^3.2.6",
     "nunjucks": "^3.2.4",
