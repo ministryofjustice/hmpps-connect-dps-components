@@ -6,9 +6,6 @@ updates:
       - dependency-name: "@types/node"
         versions:
           - ">=25"
-      - dependency-name: "govuk-frontend"
-        versions:
-          - ">=6"
     cooldown:
       default-days: 7
       exclude:
