@@ -81,7 +81,7 @@
   },
   "dependencies": {
     "@ministryofjustice/hmpps-rest-client": "2.1.0",
-    "@types/node": "24.12.4",
+    "@types/node": "24.13.0",
     "@types/nunjucks": "^3.2.6",
     "nunjucks": "^3.2.4",
     "superagent": "^10.3.0"
