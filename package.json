@@ -51,7 +51,7 @@
   "homepage": "https://github.com/ministryofjustice/hmpps-connect-dps-components#readme",
   "devDependencies": {
     "@ministryofjustice/eslint-config-hmpps": "2.0.0-alpha.2",
-    "@ministryofjustice/hmpps-auth-clients": "2.0.0",
+    "@ministryofjustice/hmpps-auth-clients": "3.0.0",
     "@ministryofjustice/hmpps-npm-script-allowlist": "0.0.6",
     "@ministryofjustice/hmpps-precommit-hooks": "3.0.1",
     "@rollup/plugin-commonjs": "^29.0.2",
@@ -72,7 +72,7 @@
     "jest-junit": "^17.0.0",
     "lint-staged": "^17.0.5",
     "nock": "^15.0.0",
-    "rollup": "4.61.0",
+    "rollup": "4.61.1",
     "rollup-plugin-dts": "6.4.1",
     "supertest": "^7.2.2",
     "ts-jest": "29.4.11",
