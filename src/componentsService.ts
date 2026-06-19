@@ -9,7 +9,7 @@ import { ConnectDpsComponentLogger } from './types/ConnectDpsComponentLogger'
 export interface FrontendComponentRequestOptions {
   authUrl?: string
   supportUrl?: string
-  environmentName?: 'DEV' | 'PRE-PRODUCTION' | 'PRODUCTION'
+  environmentName?: string
   includeSharedData?: boolean
   useFallbacksByDefault?: boolean
   /**
