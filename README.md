@@ -75,7 +75,7 @@ To incorporate, use the middleware for appropriate routes within your Express ap
 It may be sufficient for you app to only request components for GET requests for example, in which case
 
 ```javascript
-    app.get('*', getFrontendComponents({
+    app.get('*allPaths', getFrontendComponents({
       logger,
       componentApiConfig: config.apis.componentApi,
       dpsUrl: config.serviceUrls.digitalPrison,
