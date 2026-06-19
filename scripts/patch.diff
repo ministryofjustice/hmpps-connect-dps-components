@@ -33,7 +33,7 @@ index f40e7d3..52b7431 100644
      HMPPS_AUTH_URL: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth"
      TOKEN_VERIFICATION_API_URL: "https://token-verification-api-dev.prison.service.justice.gov.uk"
 +    COMPONENT_API_URL: "https://frontend-components-dev.hmpps.service.justice.gov.uk"
-+    DPS_HOME_PAGE_URL: "https://digital-dev.prison.service.justice.gov.uk"
++    DPS_HOME_PAGE_URL: "https://dps-dev.prison.service.justice.gov.uk"
      EXAMPLE_API_URL: 'https://template-kotlin-dev.hmpps.service.justice.gov.uk'
      ENVIRONMENT_NAME: DEV
      AUDIT_ENABLED: "false"
@@ -46,7 +46,7 @@ index 554e19a..0d577b2 100644
      HMPPS_AUTH_URL: "https://sign-in-preprod.hmpps.service.justice.gov.uk/auth"
      TOKEN_VERIFICATION_API_URL: "https://token-verification-api-preprod.prison.service.justice.gov.uk"
 +    COMPONENT_API_URL: "https://frontend-components-preprod.hmpps.service.justice.gov.uk"
-+    DPS_HOME_PAGE_URL: "https://digital-preprod.prison.service.justice.gov.uk"
++    DPS_HOME_PAGE_URL: "https://dps-preprod.prison.service.justice.gov.uk"
      EXAMPLE_API_URL: 'https://template-kotlin-preprod.hmpps.service.justice.gov.uk'
      ENVIRONMENT_NAME: PRE-PRODUCTION
      AUDIT_ENABLED: "false"
@@ -59,7 +59,7 @@ index 6bb4e41..3a2ae46 100644
      HMPPS_AUTH_URL: "https://sign-in.hmpps.service.justice.gov.uk/auth"
      TOKEN_VERIFICATION_API_URL: "https://token-verification-api.prison.service.justice.gov.uk"
 +    COMPONENT_API_URL: "https://frontend-components.hmpps.service.justice.gov.uk"
-+    DPS_HOME_PAGE_URL: "https://digital.prison.service.justice.gov.uk"
++    DPS_HOME_PAGE_URL: "https://dps.prison.service.justice.gov.uk"
      EXAMPLE_API_URL: 'https://template-kotlin.hmpps.service.justice.gov.uk'
      AUDIT_ENABLED: "false"
 
