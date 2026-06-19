@@ -1,16 +1,19 @@
 import type { RequestHandler } from 'express'
-import { ApiConfig } from '@ministryofjustice/hmpps-rest-client'
+import type { ApiConfig } from '@ministryofjustice/hmpps-rest-client'
 import ComponentApiClient from './data/componentApi/componentApiClient'
 import { getFallbackFooter, getFallbackHeader } from './utils/fallbacks'
 import updateCsp from './utils/updateCsp'
-import { HmppsUser } from './types/HmppsUser'
-import { ConnectDpsComponentLogger } from './types/ConnectDpsComponentLogger'
+import type { HmppsUser } from './types/HmppsUser'
+import type { ConnectDpsComponentLogger } from './types/ConnectDpsComponentLogger'
 
 export interface FrontendComponentRequestOptions {
   authUrl?: string
   supportUrl?: string
+  /** The tag to display in fallback headers to indicate non-production environments */
   environmentName?: string
+  /** Store `SharedData` in `res.locals.feComponents.sharedData` as returned by the micro frontend components service */
   includeSharedData?: boolean
+  /** Use fallback components without trying to load anything from micro frontend components service */
   useFallbacksByDefault?: boolean
   /**
    * Update Content-Security-Policy with directives returned by MFE components service
