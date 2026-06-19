@@ -1,10 +1,17 @@
 import nunjucks from 'nunjucks'
 import { HmppsUser } from '../types/HmppsUser'
 
+export interface FallbackHeaderOptions {
+  /** The tag to display in fallback headers to indicate non-production environments */
+  environmentName?: string
+  authUrl?: string
+  supportUrl?: string
+}
+
 export function getFallbackHeader(
   user: HmppsUser | null,
   dpsUrl: string,
-  { environmentName, authUrl, supportUrl }: { environmentName?: string; authUrl?: string; supportUrl?: string },
+  { environmentName, authUrl, supportUrl }: FallbackHeaderOptions,
 ): string {
   return nunjucks.render('dpsComponents/header-bar.njk', {
     isPrisonUser: !user || user.authSource === 'nomis',
@@ -17,10 +24,12 @@ export function getFallbackHeader(
   })
 }
 
-export function getFallbackFooter(
-  user: HmppsUser | null,
-  { authUrl, supportUrl }: { authUrl?: string; supportUrl?: string },
-): string {
+export interface FallbackFooterOptions {
+  authUrl?: string
+  supportUrl?: string
+}
+
+export function getFallbackFooter(user: HmppsUser | null, { authUrl, supportUrl }: FallbackFooterOptions): string {
   return nunjucks.render('dpsComponents/footer.njk', {
     isPrisonUser: !user || user.authSource === 'nomis',
     supportUrl,

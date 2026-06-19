@@ -1,16 +1,17 @@
 import type { RequestHandler } from 'express'
 import type { ApiConfig } from '@ministryofjustice/hmpps-rest-client'
 import ComponentApiClient from './data/componentApi/componentApiClient'
-import { getFallbackFooter, getFallbackHeader } from './utils/fallbacks'
+import {
+  type FallbackHeaderOptions,
+  type FallbackFooterOptions,
+  getFallbackFooter,
+  getFallbackHeader,
+} from './utils/fallbacks'
 import updateCsp from './utils/updateCsp'
 import type { HmppsUser } from './types/HmppsUser'
 import type { ConnectDpsComponentLogger } from './types/ConnectDpsComponentLogger'
 
-export interface FrontendComponentRequestOptions {
-  authUrl?: string
-  supportUrl?: string
-  /** The tag to display in fallback headers to indicate non-production environments */
-  environmentName?: string
+export interface FrontendComponentRequestOptions extends FallbackHeaderOptions, FallbackFooterOptions {
   /** Store `SharedData` in `res.locals.feComponents.sharedData` as returned by the micro frontend components service */
   includeSharedData?: boolean
   /** Use fallback components without trying to load anything from micro frontend components service */
@@ -41,13 +42,17 @@ export default class ComponentsService {
     componentApiConfig,
     dpsUrl,
   }: {
+    /** Logger for components lifecycle (can be console, the default, or bunyan logger) */
     logger?: ConnectDpsComponentLogger
+    /** Configuration for the micro frontend components service */
     componentApiConfig: ApiConfig
+    /** DPS home page url */
     dpsUrl: string
   }) {
     return new ComponentsService(logger, componentApiConfig, new ComponentApiClient(logger, componentApiConfig), dpsUrl)
   }
 
+  /** Returns the express route handler middleware to load components into `res.locals.feComponents` */
   getFrontendComponents(requestOptions?: FrontendComponentRequestOptions): RequestHandler {
     const requestOptionsWithDefaults = {
       ...defaultOptions,
