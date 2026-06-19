@@ -1,7 +1,7 @@
-import { type RequestHandler } from 'express'
-import { ApiConfig, AuthenticationClient } from '@ministryofjustice/hmpps-rest-client'
+import type { RequestHandler } from 'express'
+import type { ApiConfig, AuthenticationClient } from '@ministryofjustice/hmpps-rest-client'
 import AllocationsApiClient from './data/allocationsApi/allocationsApiClient'
-import { ConnectDpsComponentLogger } from './types/ConnectDpsComponentLogger'
+import type { ConnectDpsComponentLogger } from './types/ConnectDpsComponentLogger'
 
 export default class AllocationService {
   constructor(

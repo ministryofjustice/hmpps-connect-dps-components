@@ -1,8 +1,8 @@
-import { type RequestHandler } from 'express'
-import { ApiConfig } from '@ministryofjustice/hmpps-rest-client'
-import CaseLoad from './types/CaseLoad'
+import type { RequestHandler } from 'express'
+import type { ApiConfig } from '@ministryofjustice/hmpps-rest-client'
+import type CaseLoad from './types/CaseLoad'
 import PrisonApiClient from './data/prisonApi/prisonApiClient'
-import { ConnectDpsComponentLogger } from './types/ConnectDpsComponentLogger'
+import type { ConnectDpsComponentLogger } from './types/ConnectDpsComponentLogger'
 
 export default class CaseLoadService {
   constructor(
