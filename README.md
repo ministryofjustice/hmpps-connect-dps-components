@@ -236,6 +236,60 @@ app.use(retrieveCaseLoadData({
 This middleware checks the `res.locals.user.authSource` so ensure that any mock auth data used in tests includes
 `auth_source: 'nomis'` in the response.
 
+### Reacting to a case load change
+
+When a user changes their active case load via the header switcher, DPS sends them back to the page they came from
+and appends `caseloadChanged=true` to the url:
+
+```
+https://your-service.hmpps.service.justice.gov.uk/prison/BFI?status=ACTIVE&caseloadChanged=true
+```
+
+Your service needs this because it cannot work the change out for itself. A request for another prison's page looks
+exactly the same whether the user just switched case load or deliberately followed a link to a prison they still
+have access to. Without the marker, a service whose urls contain a prison id re-renders the prison the user has
+just left, underneath a header showing the one they moved to.
+
+Two middlewares handle this. Order matters — the first has to run before the case load cache is populated, and the
+second after, so that it can act on the new case load:
+
+```javascript
+import {
+  getFrontendComponents,
+  invalidateCaseLoadCache,
+  retrieveCaseLoadData,
+  handleCaseloadChange,
+} from '@ministryofjustice/hmpps-connect-dps-components'
+
+app.get('*allPaths', getFrontendComponents({ logger, componentApiConfig: config.apis.frontendComponents, dpsUrl }))
+app.use(invalidateCaseLoadCache())
+app.use(retrieveCaseLoadData({ logger, prisonApiConfig: config.apis.prisonApi }))
+app.use(handleCaseloadChange({
+  rewriteUrl: (req, { activeCaseLoadId }) => `/prison/${activeCaseLoadId}`,
+}))
+```
+
+`invalidateCaseLoadCache` drops the cached case load data so it is loaded again for the new prison. **Add this even
+if you do not care about the url**: unless you pass `includeSharedData: true`, `retrieveCaseLoadData` fills the
+session once and never refreshes it, so without this your users see the old case load — and the old allocation job
+responsibilities, which are looked up per prison — for the rest of their session.
+
+`handleCaseloadChange` redirects to the corrected url and takes the marker back out of the address bar. Omit
+`rewriteUrl` if your urls do not contain a prison id and you only want the parameter stripped. The marker is always
+removed from whatever `rewriteUrl` returns, so a rewrite cannot cause a redirect loop.
+
+Requests without the marker are untouched by both, so normal traffic is unaffected.
+
+#### Never trust the parameter
+
+`caseloadChanged` is a hint, not a fact. Anyone can put it in a url. Never use it to decide which prison to show,
+and never let it skip an authorisation check — take the prison from `activeCaseLoadId` and let your existing checks
+run on the redirected request. The worst a hostile `?caseloadChanged=true` can then do is send the user to their own
+active case load.
+
+`CASELOAD_CHANGED_PARAM`, `hasCaseloadChanged(req)` and `withoutCaseloadChangedParam(url)` are also exported if you
+need to handle the marker yourself.
+
 ### Populating res.locals.user with the shared allocation job responsibilities
 
 This library also provides an optional middleware which populates:
