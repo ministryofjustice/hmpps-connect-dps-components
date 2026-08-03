@@ -63,16 +63,16 @@
     "@types/express": "^5.0.6",
     "@types/jest": "^30.0.0",
     "@types/superagent": "8.1.11",
-    "@types/supertest": "^7.2.0",
+    "@types/supertest": "^7.2.1",
     "cheerio": "^1.2.0",
     "express": "^5.2.1",
     "govuk-frontend": "6.4.0",
     "jest": "^30.4.2",
     "jest-html-reporter": "^4.4.0",
     "jest-junit": "^17.0.0",
-    "lint-staged": "^17.0.7",
+    "lint-staged": "^17.2.0",
     "nock": "14.0.16",
-    "rollup": "4.62.2",
+    "rollup": "4.62.3",
     "rollup-plugin-dts": "6.4.1",
     "supertest": "^7.2.2",
     "ts-jest": "29.4.12",
@@ -87,6 +87,6 @@
     "superagent": "^10.3.0"
   },
   "overrides": {
-    "js-yaml": "^5.1.0"
+    "brace-expansion": "5.0.8"
   }
 }
