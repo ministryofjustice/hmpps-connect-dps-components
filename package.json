@@ -57,6 +57,7 @@
     "@rollup/plugin-commonjs": "^29.0.3",
     "@rollup/plugin-multi-entry": "^7.1.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-replace": "6.0.3",
     "@rollup/plugin-typescript": "^12.3.0",
     "@tsconfig/node24": "24.0.4",
     "@types/bunyan": "^1.8.11",

@@ -3,7 +3,8 @@ import type AvailableComponent from '../../types/AvailableComponent'
 import type Component from '../../types/Component'
 import type { ConnectDpsComponentLogger } from '../../types/ConnectDpsComponentLogger'
 import type SharedData from '../../types/SharedData'
-import { version } from '../../../package.json'
+
+declare const DPS_COMPONENTS_VERSION: string // rollup/plugin-replace handles this. see rollup.config.ts
 
 export type ComponentsApiResponse<T extends AvailableComponent[] = AvailableComponent[]> = Record<
   T[number],
@@ -20,7 +21,7 @@ export default class ComponentApiClient extends RestClient {
   async getComponents<T extends AvailableComponent[]>(userToken: string): Promise<ComponentsApiResponse<T>> {
     return this.get({
       path: '/components',
-      query: `component=header&component=footer&library=${version}`,
+      query: `component=header&component=footer&library=${DPS_COMPONENTS_VERSION}`,
       headers: { 'x-user-token': userToken },
     })
   }
