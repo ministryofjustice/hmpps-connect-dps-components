@@ -3,6 +3,7 @@ import type AvailableComponent from '../../types/AvailableComponent'
 import type Component from '../../types/Component'
 import type { ConnectDpsComponentLogger } from '../../types/ConnectDpsComponentLogger'
 import type SharedData from '../../types/SharedData'
+import { version } from '../../../package.json'
 
 export type ComponentsApiResponse<T extends AvailableComponent[] = AvailableComponent[]> = Record<
   T[number],
@@ -19,7 +20,7 @@ export default class ComponentApiClient extends RestClient {
   async getComponents<T extends AvailableComponent[]>(userToken: string): Promise<ComponentsApiResponse<T>> {
     return this.get({
       path: '/components',
-      query: 'component=header&component=footer',
+      query: `component=header&component=footer&library=${version}`,
       headers: { 'x-user-token': userToken },
     })
   }
