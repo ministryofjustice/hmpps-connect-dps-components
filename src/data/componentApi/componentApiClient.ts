@@ -4,8 +4,6 @@ import type Component from '../../types/Component'
 import type { ConnectDpsComponentLogger } from '../../types/ConnectDpsComponentLogger'
 import type SharedData from '../../types/SharedData'
 
-declare const DPS_COMPONENTS_VERSION: string // rollup/plugin-replace handles this. see rollup.config.ts
-
 export type ComponentsApiResponse<T extends AvailableComponent[] = AvailableComponent[]> = Record<
   T[number],
   Component

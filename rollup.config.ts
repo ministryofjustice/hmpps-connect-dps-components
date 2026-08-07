@@ -13,7 +13,7 @@ export default [
       { file: pkg.module, format: 'esm', sourcemap: true },
     ],
     plugins: [
-      replace({ DPS_COMPONENTS_VERSION: pkg.version, preventAssignment: true }),
+      replace({ DPS_COMPONENTS_VERSION: JSON.stringify(pkg.version), preventAssignment: true }),
       nodeResolve({ preferBuiltins: true }),
       typescript({
         tsconfig: './tsconfig.json',
