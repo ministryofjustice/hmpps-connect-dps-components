@@ -2,6 +2,7 @@ import typescript from '@rollup/plugin-typescript'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 import { dts } from 'rollup-plugin-dts'
 import multiEntry from '@rollup/plugin-multi-entry'
+import replace from '@rollup/plugin-replace'
 import pkg from './package.json'
 
 export default [
@@ -12,6 +13,7 @@ export default [
       { file: pkg.module, format: 'esm', sourcemap: true },
     ],
     plugins: [
+      replace({ DPS_COMPONENTS_VERSION: JSON.stringify(pkg.version), preventAssignment: true }),
       nodeResolve({ preferBuiltins: true }),
       typescript({
         tsconfig: './tsconfig.json',

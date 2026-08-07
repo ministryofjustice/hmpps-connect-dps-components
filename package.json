@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/hmpps-connect-dps-components",
-  "version": "6.3.1",
+  "version": "6.3.2",
   "description": "A package to allow the inclusion of connect DPS micro frontend components within DPS applications",
   "main": "./dist/index.cjs",
   "module": "./dist/index.esm.js",
@@ -57,6 +57,7 @@
     "@rollup/plugin-commonjs": "^29.0.3",
     "@rollup/plugin-multi-entry": "^7.1.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-replace": "6.0.3",
     "@rollup/plugin-typescript": "^12.3.0",
     "@tsconfig/node24": "24.0.4",
     "@types/bunyan": "^1.8.11",

@@ -1,5 +1,8 @@
 import { createDefaultPreset } from 'ts-jest'
 
-export default createDefaultPreset({
-  tsconfig: 'tsconfig.test.json',
-})
+export default {
+  ...createDefaultPreset({
+    tsconfig: 'tsconfig.test.json',
+  }),
+  setupFiles: ['./jest.setup.mjs'],
+}

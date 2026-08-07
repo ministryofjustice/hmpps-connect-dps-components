@@ -19,7 +19,7 @@ export default class ComponentApiClient extends RestClient {
   async getComponents<T extends AvailableComponent[]>(userToken: string): Promise<ComponentsApiResponse<T>> {
     return this.get({
       path: '/components',
-      query: 'component=header&component=footer',
+      query: `component=header&component=footer&library=${DPS_COMPONENTS_VERSION}`,
       headers: { 'x-user-token': userToken },
     })
   }

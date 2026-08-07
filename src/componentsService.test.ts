@@ -7,6 +7,7 @@ import Logger from 'bunyan'
 import type { ComponentsApiResponse } from './data/componentApi/componentApiClient'
 import type { HmppsUser, PrisonUser, ProbationUser } from './types/HmppsUser'
 import ComponentsService from './componentsService'
+import { version } from '../package.json'
 
 const prisonUser = { token: 'token', authSource: 'nomis', displayName: 'Edwin Shannon' } as PrisonUser
 const probationUser = { token: 'token', authSource: 'delius', displayName: 'Edwin Shannon' } as ProbationUser
@@ -95,7 +96,7 @@ afterEach(() => {
 
 describe('getFrontendComponents', () => {
   it('should call fe components api and attach header and footer html with all css and js combined', () => {
-    componentsApi.get('/components?component=header&component=footer').reply(200, apiResponse)
+    componentsApi.get(`/components?component=header&component=footer&library=${version}`).reply(200, apiResponse)
 
     return request(setupApp())
       .get('/')
@@ -114,9 +115,9 @@ describe('getFrontendComponents', () => {
     describe('when prison user', () => {
       it('should provide a fallback header', () => {
         componentsApi
-          .get('/components?component=header&component=footer')
+          .get(`/components?component=header&component=footer&library=${version}`)
           .reply(500)
-          .get('/components?component=header&component=footer')
+          .get(`/components?component=header&component=footer&library=${version}`)
           .reply(500)
 
         return request(setupApp())
@@ -137,9 +138,9 @@ describe('getFrontendComponents', () => {
 
       it('should provide a fallback footer', () => {
         componentsApi
-          .get('/components?component=header&component=footer')
+          .get(`/components?component=header&component=footer&library=${version}`)
           .reply(500)
-          .get('/components?component=header&component=footer')
+          .get(`/components?component=header&component=footer&library=${version}`)
           .reply(500)
 
         return request(setupApp())
@@ -160,9 +161,9 @@ describe('getFrontendComponents', () => {
     describe('when non-prison user', () => {
       it('should provide a fallback header', () => {
         componentsApi
-          .get('/components?component=header&component=footer')
+          .get(`/components?component=header&component=footer&library=${version}`)
           .reply(500)
-          .get('/components?component=header&component=footer')
+          .get(`/components?component=header&component=footer&library=${version}`)
           .reply(500)
 
         return request(setupApp({ user: probationUser }))
@@ -183,9 +184,9 @@ describe('getFrontendComponents', () => {
 
       it('should provide a fallback footer', () => {
         componentsApi
-          .get('/components?component=header&component=footer')
+          .get(`/components?component=header&component=footer&library=${version}`)
           .reply(500)
-          .get('/components?component=header&component=footer')
+          .get(`/components?component=header&component=footer&library=${version}`)
           .reply(500)
 
         return request(setupApp({ user: probationUser }))
@@ -240,7 +241,7 @@ describe('getFrontendComponents', () => {
 
     describe('when configured to only use fallbacks', () => {
       it('should provide a fallback header', () => {
-        componentsApi.get('/components?component=header&component=footer').reply(200, apiResponse)
+        componentsApi.get(`/components?component=header&component=footer&library=${version}`).reply(200, apiResponse)
 
         return request(setupApp({ user: prisonUser, useFallbacksByDefault: true }))
           .get('/')
@@ -259,7 +260,7 @@ describe('getFrontendComponents', () => {
       })
 
       it('should provide a fallback footer', () => {
-        componentsApi.get('/components?component=header&component=footer').reply(200, apiResponse)
+        componentsApi.get(`/components?component=header&component=footer&library=${version}`).reply(200, apiResponse)
 
         return request(setupApp({ user: prisonUser, useFallbacksByDefault: true }))
           .get('/')
@@ -279,7 +280,7 @@ describe('getFrontendComponents', () => {
 
   describe('shared data', () => {
     it('should include shared data if includeSharedData is true', () => {
-      componentsApi.get('/components?component=header&component=footer').reply(200, apiResponse)
+      componentsApi.get(`/components?component=header&component=footer&library=${version}`).reply(200, apiResponse)
 
       return request(setupApp({ user: prisonUser, includeSharedData: true }))
         .get('/')
@@ -309,7 +310,7 @@ describe('getFrontendComponents', () => {
     ])(
       'should $scenario from MFE response if updateContentSecurityPolicy is $updateContentSecurityPolicy',
       ({ updateContentSecurityPolicy }) => {
-        componentsApi.get('/components?component=header&component=footer').reply(200, apiResponse)
+        componentsApi.get(`/components?component=header&component=footer&library=${version}`).reply(200, apiResponse)
 
         return request(setupApp({ user: prisonUser, updateContentSecurityPolicy }))
           .get('/')
