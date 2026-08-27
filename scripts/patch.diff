@@ -25,10 +25,10 @@ index 9a3f344..11b4654 100644
  TOKEN_VERIFICATION_ENABLED=true
  REDIS_ENABLED=false
 diff --git a/helm_deploy/values-dev.yaml b/helm_deploy/values-dev.yaml
-index f40e7d3..52b7431 100644
+index c83ecc4..26602b2 100644
 --- a/helm_deploy/values-dev.yaml
 +++ b/helm_deploy/values-dev.yaml
-@@ -11,6 +11,8 @@ generic-service:
+@@ -12,6 +12,8 @@ generic-service:
      INGRESS_URL: "https://template-typescript-dev.hmpps.service.justice.gov.uk"
      HMPPS_AUTH_URL: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth"
      TOKEN_VERIFICATION_API_URL: "https://token-verification-api-dev.prison.service.justice.gov.uk"
@@ -36,9 +36,9 @@ index f40e7d3..52b7431 100644
 +    DPS_HOME_PAGE_URL: "https://dps-dev.prison.service.justice.gov.uk"
      EXAMPLE_API_URL: 'https://template-kotlin-dev.hmpps.service.justice.gov.uk'
      ENVIRONMENT_NAME: DEV
-     AUDIT_ENABLED: "false"
+
 diff --git a/helm_deploy/values-preprod.yaml b/helm_deploy/values-preprod.yaml
-index 554e19a..0d577b2 100644
+index 896b0b1..47eaa16 100644
 --- a/helm_deploy/values-preprod.yaml
 +++ b/helm_deploy/values-preprod.yaml
 @@ -11,6 +11,8 @@ generic-service:
@@ -49,9 +49,9 @@ index 554e19a..0d577b2 100644
 +    DPS_HOME_PAGE_URL: "https://dps-preprod.prison.service.justice.gov.uk"
      EXAMPLE_API_URL: 'https://template-kotlin-preprod.hmpps.service.justice.gov.uk'
      ENVIRONMENT_NAME: PRE-PRODUCTION
-     AUDIT_ENABLED: "false"
+
 diff --git a/helm_deploy/values-prod.yaml b/helm_deploy/values-prod.yaml
-index 6bb4e41..3a2ae46 100644
+index 9c3127e..c55acbb 100644
 --- a/helm_deploy/values-prod.yaml
 +++ b/helm_deploy/values-prod.yaml
 @@ -9,6 +9,8 @@ generic-service:
@@ -61,8 +61,8 @@ index 6bb4e41..3a2ae46 100644
 +    COMPONENT_API_URL: "https://frontend-components.hmpps.service.justice.gov.uk"
 +    DPS_HOME_PAGE_URL: "https://dps.prison.service.justice.gov.uk"
      EXAMPLE_API_URL: 'https://template-kotlin.hmpps.service.justice.gov.uk'
-     AUDIT_ENABLED: "false"
 
+   allowlist:
 diff --git a/server/app.ts b/server/app.ts
 index eddaa67..0dfb1fe 100644
 --- a/server/app.ts
