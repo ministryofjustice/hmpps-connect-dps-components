@@ -86,7 +86,9 @@ jobs:
           path: test-installation
       - name: Test component installation
         run: |
+          export package_version=$(npm view . version)
           cd test-installation
+          npm approve-scripts @ministryofjustice/hmpps-connect-dps-components@$package_version
           npx ..
           git status
 
