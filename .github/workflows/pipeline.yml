@@ -87,7 +87,7 @@ jobs:
       - name: Test component installation
         run: |
           cd test-installation
-          npx ..
+          npx --dangerously-allow-all-scripts --strict-allow-scripts=false ..
           git status
 
   publish:
