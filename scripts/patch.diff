@@ -64,11 +64,12 @@ index 9c3127e..c55acbb 100644
 
    allowlist:
 diff --git a/server/app.ts b/server/app.ts
-index eddaa67..0dfb1fe 100644
+index f362811..bdca4d8 100644
 --- a/server/app.ts
 +++ b/server/app.ts
-@@ -1,7 +1,10 @@
+@@ -1,8 +1,11 @@
  import express from 'express'
+ import { telemetryMiddleware } from '@ministryofjustice/hmpps-azure-telemetry'
 +import { getFrontendComponents } from '@ministryofjustice/hmpps-connect-dps-components'
 
  import createError from 'http-errors'
@@ -78,9 +79,9 @@ index eddaa67..0dfb1fe 100644
  import nunjucksSetup from './utils/nunjucksSetup'
  import errorHandler from './errorHandler'
  import authorisationMiddleware from './middleware/authorisationMiddleware'
-@@ -38,6 +41,15 @@ export default function createApp(services: Services): express.Application {
-   app.use(setUpCsrf())
-   app.use(setUpCurrentUser())
+@@ -39,6 +42,15 @@ export default function createApp(services: Services): express.Application {
+   // For prison users, register the `addUserMetadataToTelemetry` middleware after middleware that retrieves caseload data.
+   app.use(telemetryMiddleware.addUserMetadataToTelemetry())
 
 +  app.use(
 +    getFrontendComponents({
@@ -95,10 +96,10 @@ index eddaa67..0dfb1fe 100644
 
    app.use((_req, _res, next) => next(createError(404, 'Not found')))
 diff --git a/server/config.ts b/server/config.ts
-index e49a07b..9bbba57 100644
+index 92f65c9..386a396 100644
 --- a/server/config.ts
 +++ b/server/config.ts
-@@ -72,6 +72,15 @@ export default {
+@@ -73,6 +73,15 @@ export default {
        agent: new AgentConfig(Number(get('TOKEN_VERIFICATION_API_TIMEOUT_RESPONSE', 5000))),
        enabled: get('TOKEN_VERIFICATION_ENABLED', 'false') === 'true',
      },
@@ -114,7 +115,7 @@ index e49a07b..9bbba57 100644
      exampleApi: {
        url: get('EXAMPLE_API_URL', 'http://localhost:8080', requiredInProduction),
        healthPath: '/health/ping',
-@@ -82,6 +91,7 @@ export default {
+@@ -83,6 +92,7 @@ export default {
        agent: new AgentConfig(Number(get('EXAMPLE_API_TIMEOUT_RESPONSE', 5000))),
      },
    },
@@ -123,7 +124,7 @@ index e49a07b..9bbba57 100644
      audit: auditConfig(),
    },
 diff --git a/server/utils/nunjucksSetup.ts b/server/utils/nunjucksSetup.ts
-index 1d00293..69a787c 100644
+index 95f6f75..8ad3c06 100644
 --- a/server/utils/nunjucksSetup.ts
 +++ b/server/utils/nunjucksSetup.ts
 @@ -30,6 +30,7 @@ export default function nunjucksSetup(app: express.Express): void {
