@@ -28,7 +28,7 @@
     "precommit:secrets": "gitleaks git --pre-commit --redact --staged --verbose --config .gitleaks/config.toml",
     "precommit:lint": "lint-staged",
     "precommit:verify": "npm run typecheck && npm test",
-    "setup": "npm ci && hmpps-npm-script-run-allowlist"
+    "setup": "npm clean-install"
   },
   "lint-staged": {
     "*.{ts,css}": [
@@ -52,7 +52,6 @@
   "devDependencies": {
     "@ministryofjustice/eslint-config-hmpps": "2.0.0-alpha.2",
     "@ministryofjustice/hmpps-auth-clients": "3.0.0",
-    "@ministryofjustice/hmpps-npm-script-allowlist": "0.0.6",
     "@ministryofjustice/hmpps-precommit-hooks": "3.0.2",
     "@rollup/plugin-commonjs": "^29.0.3",
     "@rollup/plugin-multi-entry": "^7.1.0",
@@ -89,5 +88,9 @@
   },
   "overrides": {
     "brace-expansion": "5.0.9"
+  },
+  "allowScripts": {
+    "@parcel/watcher@2.6.0": true,
+    "unrs-resolver@1.12.2": true
   }
 }
