@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/hmpps-connect-dps-components",
-  "version": "6.3.5",
+  "version": "6.4.0",
   "description": "A package to allow the inclusion of connect DPS micro frontend components within DPS applications",
   "main": "./dist/index.cjs",
   "module": "./dist/index.esm.js",
@@ -85,6 +85,9 @@
     "@types/nunjucks": "^3.2.6",
     "nunjucks": "^3.2.4",
     "superagent": "^10.3.0"
+  },
+  "peerDependencies": {
+    "govuk-frontend": ">=6.2"
   },
   "overrides": {
     "brace-expansion": "5.0.9"
