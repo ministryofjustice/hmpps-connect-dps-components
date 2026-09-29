@@ -125,10 +125,9 @@ const njkEnv = nunjucks.configure(
 )
 ```
 
-Include the package scss within the all.scss file
+Include the components’ fallback styles from your main scss file
 ```scss
-@import '@ministryofjustice/hmpps-connect-dps-components/dist/assets/footer';
-@import '@ministryofjustice/hmpps-connect-dps-components/dist/assets/header-bar';
+@use '@ministryofjustice/hmpps-connect-dps-components/dist/assets/all';
 ```
 
 Include reference to the components in your layout.njk file:
