@@ -1,7 +1,8 @@
 # hmpps-connect-dps-components
 
-[![repo standards badge](https://img.shields.io/badge/endpoint.svg?&style=flat&logo=github&url=https%3A%2F%2Foperations-engineering-reports.cloud-platform.service.justice.gov.uk%2Fapi%2Fv1%2Fcompliant_public_repositories%2Fhmpps-connect-dps-components)](https://operations-engineering-reports.cloud-platform.service.justice.gov.uk/public-report/hmpps-connect-dps-components "Link to report")
+[![Ministry of Justice Repository Compliance Badge](https://github-community.service.justice.gov.uk/repository-standards/api/hmpps-connect-dps-components/badge?style=flat)](https://github-community.service.justice.gov.uk/repository-standards/hmpps-connect-dps-components)
 [![Test, lint & publish](https://github.com/ministryofjustice/hmpps-connect-dps-components/actions/workflows/pipeline.yml/badge.svg?branch=main)](https://github.com/ministryofjustice/hmpps-connect-dps-components/actions/workflows/pipeline.yml)
+![NPM version](https://img.shields.io/npm/v/%40ministryofjustice%2Fhmpps-connect-dps-components)
 
 `hmpps-connect-dps-components` is a Node.js client library to simplify the process of incorporating global components
 within DPS applications. We welcome feedback on this README [here](https://moj.enterprise.slack.com/archives/C04JFG3QJE6)
@@ -58,16 +59,16 @@ Do take care to check the diff carefully, in case your repository has diverged f
 To incorporate, use the middleware for appropriate routes within your Express application:
 
 ```javascript
-    import { getFrontendComponents } from '@ministryofjustice/hmpps-connect-dps-components'
+import { getFrontendComponents } from '@ministryofjustice/hmpps-connect-dps-components'
 
-    ...
+// ...
 
-    app.use(getFrontendComponents({
-      logger,
-      componentApiConfig: config.apis.componentApi,
-      dpsUrl: config.serviceUrls.digitalPrison,
-      requestOptions: { includeSharedData: true },
-    }))
+app.use(getFrontendComponents({
+  logger,
+  componentApiConfig: config.apis.componentApi,
+  dpsUrl: config.serviceUrls.digitalPrison,
+  requestOptions: { includeSharedData: true },
+}))
 ```
 
 **However, please 🙏 consider carefully whether you need the components for EVERY request.**
@@ -75,13 +76,12 @@ To incorporate, use the middleware for appropriate routes within your Express ap
 It may be sufficient for you app to only request components for GET requests for example, in which case
 
 ```javascript
-    app.get('*allPaths', getFrontendComponents({
-      logger,
-      componentApiConfig: config.apis.componentApi,
-      dpsUrl: config.serviceUrls.digitalPrison,
-      requestOptions: { includeSharedData: true },
-    })
-  )
+app.get('*allPaths', getFrontendComponents({
+  logger,
+  componentApiConfig: config.apis.componentApi,
+  dpsUrl: config.serviceUrls.digitalPrison,
+  requestOptions: { includeSharedData: true },
+}))
 ```
 
 may be more appropriate, especially if you use the [PRG pattern](https://en.wikipedia.org/wiki/Post/Redirect/Get) to
@@ -91,17 +91,17 @@ something like this to avoid the component API call for the following routes: `/
 (a redirect only route).
 
 ```javascript
-    app.get(
-      /^(?!\/api|^\/$).*/,
-      getFrontendComponents({
-        logger,
-        componentApiConfig: config.apis.componentApi,
-        dpsUrl: config.serviceUrls.digitalPrison,
-      }),
-      (req, res) => {
-        res.render('prisonerProfile')
-      },
-    )
+app.get(
+  /^(?!\/api|^\/$).*/,
+  getFrontendComponents({
+    logger,
+    componentApiConfig: config.apis.componentApi,
+    dpsUrl: config.serviceUrls.digitalPrison,
+  }),
+  (req, res) => {
+    res.render('prisonerProfile')
+  },
+)
 ```
 
 There are a [number of options](./src/index.ts) available depending on your requirements.
@@ -134,11 +134,11 @@ Include reference to the components in your layout.njk file:
 
 ```nunjucks
 {% for js in feComponents.jsIncludes %}
-    <script src="{{ js }}" nonce="{{ cspNonce }}"></script>
+  <script src="{{ js }}" nonce="{{ cspNonce }}"></script>
 {% endfor %}
 
 {% for css in feComponents.cssIncludes %}
-    <link href="{{ css }}" nonce="{{ cspNonce }}" rel="stylesheet" />
+  <link href="{{ css }}" nonce="{{ cspNonce }}" rel="stylesheet" />
 {% endfor %}
 ```
 ```nunjucks
@@ -158,19 +158,19 @@ It may be that you need to add some extra requests for the page components for p
 of routes. e.g. in `setUpAuthentication.ts` on the `/autherror` path:
 
 ```javascript
-     router.get(
-      '/autherror',
-      getFrontendComponents({
-        logger,
-        componentApiConfig: config.apis.componentApi,
-        dpsUrl: config.serviceUrls.digitalPrison,
-        requestOptions: { includeSharedData: true },
-      }),
-      (req, res) => {
-        res.status(401)
-        return res.render('autherror')
-      },
-    )
+router.get(
+  '/autherror',
+  getFrontendComponents({
+    logger,
+    componentApiConfig: config.apis.componentApi,
+    dpsUrl: config.serviceUrls.digitalPrison,
+    requestOptions: { includeSharedData: true },
+  }),
+  (req, res) => {
+    res.status(401)
+    return res.render('autherror')
+  },
+)
 ```
 
 This will provide a stripped down header for if there is no user object on `res.locals`.
@@ -226,10 +226,9 @@ To enable this, add the middleware after the component middleware as follows:
 import { retrieveCaseLoadData } from '@ministryofjustice/hmpps-connect-dps-components'
 
 app.use(retrieveCaseLoadData({
-    logger,
-    prisonApiConfig: config.apis.prisonApi,
-  }),
-)
+  logger,
+  prisonApiConfig: config.apis.prisonApi,
+}))
 ```
 
 This middleware checks the `res.locals.user.authSource` so ensure that any mock auth data used in tests includes
