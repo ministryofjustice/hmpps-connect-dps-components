@@ -72,7 +72,7 @@
     "jest-junit": "^17.0.0",
     "lint-staged": "^17.2.0",
     "nock": "14.0.17",
-    "rollup": "4.63.5",
+    "rollup": "4.63.6",
     "rollup-plugin-dts": "6.5.1",
     "supertest": "^7.2.2",
     "ts-jest": "29.4.14",
