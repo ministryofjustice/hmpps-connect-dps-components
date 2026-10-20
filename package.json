@@ -72,7 +72,7 @@
     "jest-junit": "^17.0.0",
     "lint-staged": "^17.2.0",
     "nock": "14.0.17",
-    "rollup": "4.64.2",
+    "rollup": "4.64.6",
     "rollup-plugin-dts": "6.5.1",
     "supertest": "^7.2.2",
     "ts-jest": "29.4.14",
@@ -81,7 +81,7 @@
   },
   "dependencies": {
     "@ministryofjustice/hmpps-rest-client": "2.2.0",
-    "@types/node": "24.19.1",
+    "@types/node": "24.19.2",
     "@types/nunjucks": "^3.2.6",
     "nunjucks": "^3.2.4",
     "superagent": "^10.3.0"
