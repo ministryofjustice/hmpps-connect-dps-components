@@ -2,7 +2,7 @@
 
 [![Ministry of Justice Repository Compliance Badge](https://github-community.service.justice.gov.uk/repository-standards/api/hmpps-connect-dps-components/badge?style=flat)](https://github-community.service.justice.gov.uk/repository-standards/hmpps-connect-dps-components)
 [![Test, lint & publish](https://github.com/ministryofjustice/hmpps-connect-dps-components/actions/workflows/pipeline.yml/badge.svg?branch=main)](https://github.com/ministryofjustice/hmpps-connect-dps-components/actions/workflows/pipeline.yml)
-![NPM version](https://img.shields.io/npm/v/%40ministryofjustice%2Fhmpps-connect-dps-components)
+[![NPM version](https://img.shields.io/npm/v/%40ministryofjustice%2Fhmpps-connect-dps-components)](https://www.npmjs.com/package/@ministryofjustice/hmpps-connect-dps-components)
 
 `hmpps-connect-dps-components` is a Node.js client library to simplify the process of incorporating global components
 within DPS applications. We welcome feedback on this README [here](https://moj.enterprise.slack.com/archives/C04JFG3QJE6)
