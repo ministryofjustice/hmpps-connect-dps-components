@@ -8,9 +8,10 @@ This library is [published to NPM](https://www.npmjs.com/package/@ministryofjust
 The process to publish a change is as follows:
 
 * Create a branch from `main`
-* Make the code changes
+* Make the code changes and update README.md if necessary
 * Run `npm version <patch|minor|major> --no-git-tag-version` to bump the version number appropriately (for help with
   semantic versioning, see https://semver.org/)
+    * Add entry to CHANGELOG.md
 * Commit the changes, push the branch and raise a PR
 * Once the PR has been merged to `main`, [create a new release](https://github.com/ministryofjustice/hmpps-connect-dps-components/releases/new):
     * Select the `Choose a tag` dropdown and create a new tag entering the new version number (this must start with a `v`, e.g. `v0.0.1`)
