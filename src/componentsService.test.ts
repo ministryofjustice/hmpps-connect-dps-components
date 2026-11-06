@@ -1,24 +1,22 @@
+import type Logger from 'bunyan'
+import * as cheerio from 'cheerio'
 import express from 'express'
+import nock from 'nock'
 import nunjucks from 'nunjucks'
 import request from 'supertest'
-import nock from 'nock'
-import * as cheerio from 'cheerio'
-import Logger from 'bunyan'
-import type { ComponentsApiResponse } from './data/componentApi/componentApiClient'
-import type { HmppsUser, PrisonUser, ProbationUser } from './types/HmppsUser'
-import ComponentsService from './componentsService'
 import { version } from '../package.json'
-
-const prisonUser = { token: 'token', authSource: 'nomis', displayName: 'Edwin Shannon' } as PrisonUser
-const probationUser = { token: 'token', authSource: 'delius', displayName: 'Edwin Shannon' } as ProbationUser
+import type { ComponentsApiResponse } from './data/componentApi/componentApiClient'
+import type { HmppsUser } from './types/HmppsUser'
+import { activeCaseLoad, azureUser, externalUser, prisonUser, probationUser, services } from './utils/testMocks'
+import ComponentsService from './componentsService'
 
 const apiResponse: ComponentsApiResponse = {
   header: { html: 'header', css: ['header.css'], javascript: ['header.js'] },
   footer: { html: 'footer', css: ['footer.css'], javascript: [] },
   meta: {
-    caseLoads: [],
-    activeCaseLoad: null,
-    services: [],
+    caseLoads: [activeCaseLoad],
+    activeCaseLoad,
+    services,
     allocationJobResponsibilities: [],
     cspDirectives: { 'style-src': ['http://localhost'] },
   },
@@ -54,7 +52,7 @@ function setupApp(
     info: jest.fn(),
     warn: jest.fn(),
     error: jest.fn(),
-  } as unknown as Logger
+  } as unknown as jest.Mocked<Logger>
 
   const componentsService = ComponentsService.create({
     logger: loggerMock,
@@ -81,17 +79,16 @@ function setupApp(
   return app
 }
 
-let componentsApi: nock.Scope
-let authApi: nock.Scope
+const componentsApi = nock('http://fe-components')
+const authApi = nock('http://authUrl')
 
 beforeEach(() => {
-  componentsApi = nock('http://fe-components')
-  authApi = nock('http://authUrl')
   authApi.post('/oauth/token').reply(200, { access_token: 'token-1', expires_in: 300 })
 })
 
 afterEach(() => {
-  jest.resetAllMocks()
+  componentsApi.done()
+  nock.cleanAll()
 })
 
 describe('getFrontendComponents', () => {
@@ -112,15 +109,18 @@ describe('getFrontendComponents', () => {
   })
 
   describe('fallbacks', () => {
-    describe('when prison user', () => {
-      it('should provide a fallback header', () => {
-        componentsApi
-          .get(`/components?component=header&component=footer&library=${version}`)
-          .reply(500)
-          .get(`/components?component=header&component=footer&library=${version}`)
-          .reply(500)
+    describe.each([
+      { scenario: 'prison user', user: prisonUser, useFallbacksByDefault: undefined },
+      { scenario: 'configured to only use fallbacks', user: prisonUser, useFallbacksByDefault: true },
+    ])('when $scenario', ({ user, useFallbacksByDefault }) => {
+      beforeEach(() => {
+        if (!useFallbacksByDefault) {
+          componentsApi.get(`/components?component=header&component=footer&library=${version}`).times(2).reply(500)
+        }
+      })
 
-        return request(setupApp())
+      it('should provide a fallback header', () => {
+        return request(setupApp({ user, useFallbacksByDefault }))
           .get('/')
           .expect('Content-Type', /json/)
           .expect(200)
@@ -137,13 +137,7 @@ describe('getFrontendComponents', () => {
       })
 
       it('should provide a fallback footer', () => {
-        componentsApi
-          .get(`/components?component=header&component=footer&library=${version}`)
-          .reply(500)
-          .get(`/components?component=header&component=footer&library=${version}`)
-          .reply(500)
-
-        return request(setupApp())
+        return request(setupApp({ user, useFallbacksByDefault }))
           .get('/')
           .expect('Content-Type', /json/)
           .expect(200)
@@ -158,15 +152,17 @@ describe('getFrontendComponents', () => {
       })
     })
 
-    describe('when non-prison user', () => {
-      it('should provide a fallback header', () => {
-        componentsApi
-          .get(`/components?component=header&component=footer&library=${version}`)
-          .reply(500)
-          .get(`/components?component=header&component=footer&library=${version}`)
-          .reply(500)
+    describe.each([
+      { scenario: 'Azure AD / Entra ID', user: azureUser },
+      { scenario: 'external', user: externalUser },
+      { scenario: 'probation', user: probationUser },
+    ])('when $scenario user', ({ user }) => {
+      beforeEach(() => {
+        componentsApi.get(`/components?component=header&component=footer&library=${version}`).times(2).reply(500)
+      })
 
-        return request(setupApp({ user: probationUser }))
+      it('should provide a fallback header', () => {
+        return request(setupApp({ user }))
           .get('/')
           .expect('Content-Type', /json/)
           .expect(200)
@@ -183,13 +179,7 @@ describe('getFrontendComponents', () => {
       })
 
       it('should provide a fallback footer', () => {
-        componentsApi
-          .get(`/components?component=header&component=footer&library=${version}`)
-          .reply(500)
-          .get(`/components?component=header&component=footer&library=${version}`)
-          .reply(500)
-
-        return request(setupApp({ user: probationUser }))
+        return request(setupApp({ user }))
           .get('/')
           .expect('Content-Type', /json/)
           .expect(200)
@@ -206,8 +196,10 @@ describe('getFrontendComponents', () => {
     })
 
     describe('when no user', () => {
+      const user: HmppsUser | undefined = undefined
+
       it('should provide a fallback header', () => {
-        return request(setupApp({ user: undefined }))
+        return request(setupApp({ user }))
           .get('/')
           .expect('Content-Type', /json/)
           .expect(200)
@@ -224,45 +216,7 @@ describe('getFrontendComponents', () => {
       })
 
       it('should provide a fallback footer', () => {
-        return request(setupApp({ user: undefined }))
-          .get('/')
-          .expect('Content-Type', /json/)
-          .expect(200)
-          .expect(res => {
-            expect(res.body.feComponents.footer.trim()).toEqual(
-              '<footer class="govuk-footer govuk-!-display-none-print"></footer>',
-            )
-
-            expect(res.body.feComponents.cssIncludes).toEqual([])
-            expect(res.body.feComponents.jsIncludes).toEqual([])
-          })
-      })
-    })
-
-    describe('when configured to only use fallbacks', () => {
-      it('should provide a fallback header', () => {
-        componentsApi.get(`/components?component=header&component=footer&library=${version}`).reply(200, apiResponse)
-
-        return request(setupApp({ user: prisonUser, useFallbacksByDefault: true }))
-          .get('/')
-          .expect('Content-Type', /json/)
-          .expect(200)
-          .expect(res => {
-            const $header = cheerio.load(res.body.feComponents.header)
-
-            expect($header('[data-qa="header-user-name"]').text()).toContain('E. Shannon')
-            expect($header('a[href="http://dpsUrl"]').text()).toContain('Digital Prison Services')
-            expect($header('a[href="/sign-out"]').text()).toContain('Sign out')
-
-            expect(res.body.feComponents.cssIncludes).toEqual([])
-            expect(res.body.feComponents.jsIncludes).toEqual([])
-          })
-      })
-
-      it('should provide a fallback footer', () => {
-        componentsApi.get(`/components?component=header&component=footer&library=${version}`).reply(200, apiResponse)
-
-        return request(setupApp({ user: prisonUser, useFallbacksByDefault: true }))
+        return request(setupApp({ user }))
           .get('/')
           .expect('Content-Type', /json/)
           .expect(200)
@@ -292,9 +246,9 @@ describe('getFrontendComponents', () => {
             cssIncludes: ['header.css', 'footer.css'],
             jsIncludes: ['header.js'],
             sharedData: {
-              caseLoads: [],
-              activeCaseLoad: null,
-              services: [],
+              caseLoads: [activeCaseLoad],
+              activeCaseLoad,
+              services,
               allocationJobResponsibilities: [],
               cspDirectives: { 'style-src': ['http://localhost'] },
             },

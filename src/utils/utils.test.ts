@@ -1,27 +1,5 @@
 import { initialiseName, isPrisonUser } from './utils'
-import type { AzureADUser, ExternalUser, PrisonUser, ProbationUser } from '../types/HmppsUser'
-
-const baseUser = { displayName: 'Edwin Shannon', name: 'Edwin Shannon', userId: '123', username: 'ed123' }
-const azureUser: AzureADUser = { authSource: 'azuread', ...baseUser }
-const externalUser: ExternalUser = { authSource: 'external', ...baseUser }
-const probationUser: ProbationUser = { authSource: 'delius', ...baseUser }
-const activeCaseLoadId = 'KMI'
-const activeCaseLoad = {
-  caseLoadId: activeCaseLoadId,
-  description: 'Kirkham (HMP)',
-  type: 'INST',
-  caseloadFunction: 'GENERAL',
-  currentlyActive: true,
-}
-const prisonUser: PrisonUser = {
-  authSource: 'nomis',
-  ...baseUser,
-  staffId: 123,
-  activeCaseLoadId,
-  activeCaseLoad,
-  caseLoads: [activeCaseLoad],
-  allocationJobResponsibilities: [],
-}
+import { azureUser, externalUser, prisonUser, probationUser } from './testMocks'
 
 describe('initialiseName', () => {
   it.each([
