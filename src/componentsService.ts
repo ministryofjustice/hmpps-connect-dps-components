@@ -24,6 +24,7 @@ export interface FrontendComponentRequestOptions extends FallbackHeaderOptions, 
 }
 
 const defaultOptions: FrontendComponentRequestOptions = {
+  supportUrl: 'https://www.smartsurvey.co.uk/s/43EWY0/',
   includeSharedData: false,
   useFallbacksByDefault: false,
   updateContentSecurityPolicy: true,

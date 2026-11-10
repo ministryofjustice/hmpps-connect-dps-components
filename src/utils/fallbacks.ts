@@ -5,7 +5,9 @@ import { initialiseName, isPrisonUser } from './utils'
 export interface FallbackHeaderOptions {
   /** The tag to display in fallback headers to indicate non-production environments */
   environmentName?: string
+  /** URL of HMPPS Auth */
   authUrl?: string
+  /** URL of feedback and support page for external users */
   supportUrl?: string
 }
 
@@ -26,7 +28,9 @@ export function getFallbackHeader(
 }
 
 export interface FallbackFooterOptions {
+  /** URL of HMPPS Auth */
   authUrl?: string
+  /** URL of feedback and support page for external users */
   supportUrl?: string
 }
 
