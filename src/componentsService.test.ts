@@ -8,7 +8,7 @@ import { version } from '../package.json'
 import type { ComponentsApiResponse } from './data/componentApi/componentApiClient'
 import type { HmppsUser } from './types/HmppsUser'
 import { activeCaseLoad, azureUser, externalUser, prisonUser, probationUser, services } from './utils/testMocks'
-import ComponentsService from './componentsService'
+import ComponentsService, { type FrontendComponentRequestOptions } from './componentsService'
 
 const apiResponse: ComponentsApiResponse = {
   header: { html: 'header', css: ['header.css'], javascript: ['header.js'] },
@@ -28,11 +28,13 @@ function setupApp(
     includeSharedData = false,
     useFallbacksByDefault = false,
     updateContentSecurityPolicy = false,
+    provideUrls = true,
   }: {
     user?: HmppsUser
     includeSharedData?: boolean
     useFallbacksByDefault?: boolean
     updateContentSecurityPolicy?: boolean
+    provideUrls?: boolean
   } = { user: prisonUser },
 ): express.Application {
   const app = express()
@@ -64,15 +66,16 @@ function setupApp(
     dpsUrl: 'http://dpsUrl',
   })
 
-  app.use(
-    componentsService.getFrontendComponents({
-      authUrl: 'http://authUrl',
-      supportUrl: 'http://supportUrl',
-      includeSharedData,
-      useFallbacksByDefault,
-      updateContentSecurityPolicy,
-    }),
-  )
+  const options: FrontendComponentRequestOptions = {
+    includeSharedData,
+    useFallbacksByDefault,
+    updateContentSecurityPolicy,
+  }
+  if (provideUrls) {
+    options.authUrl = 'http://authUrl'
+    options.supportUrl = 'http://supportUrl'
+  }
+  app.use(componentsService.getFrontendComponents(options))
 
   app.get('/', (_req, res) => res.send({ feComponents: res.locals.feComponents }))
 
@@ -184,13 +187,39 @@ describe('getFrontendComponents', () => {
           .expect('Content-Type', /json/)
           .expect(200)
           .expect(res => {
-            const $header = cheerio.load(res.body.feComponents.footer)
+            const $footer = cheerio.load(res.body.feComponents.footer)
 
-            expect($header('a[href="http://authUrl/terms"]').text()).toContain('Terms and conditions')
-            expect($header('a[href="http://supportUrl"]').text()).toContain('Feedback and support')
+            expect($footer('a[href="http://authUrl/terms"]').text()).toContain('Terms and conditions')
+            expect($footer('a[href="http://supportUrl"]').text()).toContain('Feedback and support')
 
             expect(res.body.feComponents.cssIncludes).toEqual([])
             expect(res.body.feComponents.jsIncludes).toEqual([])
+          })
+      })
+
+      it('should have a default URLs for HMPPS Auth and feedback/support pages', () => {
+        return request(setupApp({ user, provideUrls: false }))
+          .get('/')
+          .expect('Content-Type', /json/)
+          .expect(200)
+          .expect(res => {
+            const $header = cheerio.load(res.body.feComponents.header)
+            expect($header('a.fallback-dps-header__title__organisation-name').attr('href')).toEqual(
+              'https://sign-in.hmpps.service.justice.gov.uk/auth',
+            )
+            expect($header('a.fallback-dps-header__title__service-name').attr('href')).toEqual(
+              'https://sign-in.hmpps.service.justice.gov.uk/auth',
+            )
+
+            const $footer = cheerio.load(res.body.feComponents.footer)
+            expect(
+              $footer('.govuk-footer__inline-list a')
+                .map((_, anchor) => anchor.attribs.href)
+                .toArray(),
+            ).toEqual([
+              'https://www.smartsurvey.co.uk/s/43EWY0/',
+              'https://sign-in.hmpps.service.justice.gov.uk/auth/terms',
+            ])
           })
       })
     })
