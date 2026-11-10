@@ -21,7 +21,7 @@ export function getFallbackHeader(
     environmentName,
     authUrl,
     supportUrl,
-    name: initialiseName(user?.displayName),
+    initialisedName: initialiseName(user?.displayName),
   })
 }
 

@@ -47,10 +47,10 @@
 
         <nav aria-label="Account navigation">
             <ul class="fallback-dps-header__navigation">
-                {% if name %}
+                {% if initialisedName %}
                     <li class="fallback-dps-header__navigation__item">
                         <a data-qa="manageDetails" class="fallback-dps-header__link" href="/account-details" data-test="manage-account-link">
-                            <span data-qa=header-user-name>{{ name }}</span>
+                            <span data-qa=header-user-name>{{ initialisedName }}</span>
                             <span class="fallback-dps-header__link__sub-text">Manage your details</span>
                         </a>
                     </li>
