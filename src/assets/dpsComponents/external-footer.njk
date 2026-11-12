@@ -1,16 +1,16 @@
 {% from "govuk/components/footer/macro.njk" import govukFooter %}
 {{ govukFooter({
-    meta: {
-        items: [
-            {
-                href: supportUrl,
-                text: "Feedback and support"
-            },
-            {
-                href: authUrl + '/terms',
-                text: "Terms and conditions"
-            }
-        ]
-    },
-    classes: "govuk-!-display-none-print"
+  meta: {
+    items: [
+      {
+        href: supportUrl,
+        text: "Feedback and support"
+      },
+      {
+        href: authUrl + "/terms",
+        text: "Terms and conditions"
+      }
+    ]
+  },
+  classes: "govuk-!-display-none-print"
 }) }}

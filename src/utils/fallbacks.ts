@@ -1,10 +1,13 @@
 import nunjucks from 'nunjucks'
-import { HmppsUser } from '../types/HmppsUser'
+import type { HmppsUser } from '../types/HmppsUser'
+import { initialiseName, isPrisonUser } from './utils'
 
 export interface FallbackHeaderOptions {
   /** The tag to display in fallback headers to indicate non-production environments */
   environmentName?: string
+  /** URL of HMPPS Auth */
   authUrl?: string
+  /** URL of feedback and support page for external users */
   supportUrl?: string
 }
 
@@ -14,32 +17,27 @@ export function getFallbackHeader(
   { environmentName, authUrl, supportUrl }: FallbackHeaderOptions,
 ): string {
   return nunjucks.render('dpsComponents/header-bar.njk', {
-    isPrisonUser: !user || user.authSource === 'nomis',
+    isPrisonUser: !user || isPrisonUser(user),
     user,
     dpsUrl,
     environmentName,
     authUrl,
     supportUrl,
-    name: initialiseName(user?.displayName),
+    initialisedName: initialiseName(user?.displayName),
   })
 }
 
 export interface FallbackFooterOptions {
+  /** URL of HMPPS Auth */
   authUrl?: string
+  /** URL of feedback and support page for external users */
   supportUrl?: string
 }
 
 export function getFallbackFooter(user: HmppsUser | null, { authUrl, supportUrl }: FallbackFooterOptions): string {
   return nunjucks.render('dpsComponents/footer.njk', {
-    isPrisonUser: !user || user.authSource === 'nomis',
+    isPrisonUser: !user || isPrisonUser(user),
     supportUrl,
     authUrl,
   })
-}
-
-function initialiseName(fullName?: string): string | null {
-  if (!fullName) return null
-
-  const array = fullName.split(' ')
-  return `${array[0][0]}. ${array.reverse()[0]}`
 }

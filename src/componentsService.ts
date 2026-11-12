@@ -24,6 +24,8 @@ export interface FrontendComponentRequestOptions extends FallbackHeaderOptions, 
 }
 
 const defaultOptions: FrontendComponentRequestOptions = {
+  authUrl: 'https://sign-in.hmpps.service.justice.gov.uk/auth',
+  supportUrl: 'https://www.smartsurvey.co.uk/s/43EWY0/',
   includeSharedData: false,
   useFallbacksByDefault: false,
   updateContentSecurityPolicy: true,

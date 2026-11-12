@@ -3,6 +3,7 @@ import type { ApiConfig } from '@ministryofjustice/hmpps-rest-client'
 import type CaseLoad from './types/CaseLoad'
 import PrisonApiClient from './data/prisonApi/prisonApiClient'
 import type { ConnectDpsComponentLogger } from './types/ConnectDpsComponentLogger'
+import { isPrisonUser } from './utils/utils'
 
 export default class CaseLoadService {
   constructor(
@@ -27,7 +28,7 @@ export default class CaseLoadService {
       if (!res.locals.user?.token) this.logger.warn('No res.locals.user.token defined to request case load data with')
       if (!res.locals.user?.authSource) this.logger.warn('No user auth source found')
 
-      if (res.locals.user && res.locals.user.token && res.locals.user.authSource === 'nomis') {
+      if (isPrisonUser(res.locals.user) && res.locals.user.token) {
         try {
           // Update cache with values from res.feComponents.sharedData if present
           if (res.locals.feComponents && res.locals.feComponents.sharedData) {

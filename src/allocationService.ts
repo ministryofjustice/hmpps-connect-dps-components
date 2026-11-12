@@ -2,6 +2,7 @@ import type { RequestHandler } from 'express'
 import type { ApiConfig, AuthenticationClient } from '@ministryofjustice/hmpps-rest-client'
 import AllocationsApiClient from './data/allocationsApi/allocationsApiClient'
 import type { ConnectDpsComponentLogger } from './types/ConnectDpsComponentLogger'
+import { isPrisonUser } from './utils/utils'
 
 export default class AllocationService {
   constructor(
@@ -29,7 +30,7 @@ export default class AllocationService {
           'Caseload details needs to be populated before retrieving allocation job responsibilities. Please run retrieveCaseLoadData before retrieveAllocationJobResponsibilities.',
         )
 
-      if (res.locals.user && res.locals.user.authSource === 'nomis') {
+      if (isPrisonUser(res.locals.user)) {
         try {
           // Update cache with values from res.feComponents.sharedData if present
           if (res.locals.feComponents && res.locals.feComponents.sharedData) {
