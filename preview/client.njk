@@ -1,0 +1,39 @@
+{% extends "govuk/template.njk" %}
+
+{% block pageTitle %}{{ pageTitle }}{% endblock %}
+
+{% block head %}
+  <link href="/client.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block header %}
+  {% include "dpsComponents/header-bar.njk" %}
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ pageTitle }}</h1>
+      <p>
+        Previewing fallback components for {% if isPrisonUser %}prison{% else %}non-prison{% endif %} users
+        which come with this library and are displayed when the micro frontend components service cannot load content.
+      </p>
+      <p>
+        Switch to
+        {%- if isPrisonUser %}
+          <a href="?userType=external">non-prison user</a>
+        {%- else %}
+          <a href="?userType=prison">prison user</a>
+        {%- endif %}.
+      </p>
+    </div>
+  </div>
+{% endblock %}
+
+{% block footer %}
+  {% include "dpsComponents/footer.njk" %}
+{% endblock %}
+
+{% block bodyEnd %}
+  <script type="module" src="/client.js"></script>
+{% endblock %}
