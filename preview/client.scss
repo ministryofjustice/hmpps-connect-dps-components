@@ -1,0 +1,5 @@
+@use 'govuk-frontend/dist/govuk' with (
+  $govuk-global-styles: true,
+  $govuk-page-width: 1170px,
+);
+@use '../dist/assets/all' as dps-components;

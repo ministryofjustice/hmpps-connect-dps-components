@@ -28,7 +28,8 @@
     "precommit:secrets": "gitleaks git --pre-commit --redact --staged --verbose --config .gitleaks/config.toml",
     "precommit:lint": "lint-staged",
     "precommit:verify": "npm run typecheck && npm test",
-    "setup": "npm clean-install"
+    "setup": "npm clean-install",
+    "start": "node --experimental-strip-types preview/server.mts"
   },
   "lint-staged": {
     "*.{ts,css}": [
@@ -74,6 +75,7 @@
     "nock": "14.0.17",
     "rollup": "4.67.5",
     "rollup-plugin-dts": "6.5.1",
+    "sass": "1.108.0",
     "supertest": "^7.2.2",
     "ts-jest": "29.4.15",
     "tslib": "^2.8.1",
