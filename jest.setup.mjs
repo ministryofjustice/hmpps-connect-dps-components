@@ -1,5 +1,3 @@
-const { readFileSync } = require('fs')
+import packageInfo from './package.json' with { type: 'json' }
 
-const { version } = JSON.parse(readFileSync('./package.json', 'utf8'))
-
-global.DPS_COMPONENTS_VERSION = version
+global.DPS_COMPONENTS_VERSION = packageInfo.version

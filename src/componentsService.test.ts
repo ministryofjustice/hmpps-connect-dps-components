@@ -94,6 +94,10 @@ afterEach(() => {
   nock.cleanAll()
 })
 
+afterAll(() => {
+  nock.restore()
+})
+
 describe('getFrontendComponents', () => {
   it('should call fe components api and attach header and footer html with all css and js combined', () => {
     componentsApi.get(`/components?component=header&component=footer&library=${version}`).reply(200, apiResponse)
