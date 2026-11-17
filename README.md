@@ -272,3 +272,4 @@ will either take case load data from the cache or make a call to the Prison API 
 ## For library developers:
 
 1. [Publishing to NPM](readme/publishing.md)
+2. To preview all components locally, run `npm run build` and then `npm start`
