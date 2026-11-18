@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/hmpps-connect-dps-components",
-  "version": "7.0.0",
+  "version": "8.0.0",
   "description": "A package to allow the inclusion of connect DPS micro frontend components within DPS applications",
   "main": "./dist/index.cjs",
   "module": "./dist/index.esm.js",
@@ -12,14 +12,14 @@
   ],
   "bin": "./scripts/install.ts",
   "engines": {
-    "node": "22 || 24 || 26"
+    "node": "24 || 26"
   },
   "scripts": {
     "prepare": "hmpps-precommit-hooks-prepare",
     "build": "rollup -c rollup.config.ts --bundleConfigAsCjs && npm run copy:assets",
     "clean": "rm -rf ./dist/",
-    "test": "jest",
-    "test:ci": "jest --runInBand",
+    "test": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" npx jest",
+    "test:ci": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" npx jest --runInBand",
     "typecheck": "tsc",
     "lint": "eslint . --cache --max-warnings 0",
     "lint:fix": "eslint . --cache --max-warnings 0 --fix",
@@ -72,7 +72,7 @@
     "jest-html-reporter": "^4.4.0",
     "jest-junit": "^17.0.0",
     "lint-staged": "^17.2.0",
-    "nock": "14.0.17",
+    "nock": "15.0.6",
     "rollup": "4.68.2",
     "rollup-plugin-dts": "6.5.1",
     "sass": "1.108.1",
