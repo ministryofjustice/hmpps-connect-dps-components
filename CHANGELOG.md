@@ -1,5 +1,9 @@
 # Change log
 
+## 8.0.0
+
+Drops official support for node 22 because testing pipeline no longer ensures it works.
+
 ## 7.0.0
 
 Fallback components, used when the micro-frontend components service cannot be accessed, have been updated.
