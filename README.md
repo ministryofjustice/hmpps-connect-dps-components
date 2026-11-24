@@ -193,6 +193,21 @@ app.use(getFrontendComponents({
 }))
 ```
 
+### Caseload changes
+
+An optional parameter `caseloadChangeNotification: true` can be passed into the request options to ask the components
+service to notify when the user changes caseload. When set, the change caseload link in the header carries a `caseloadChanged=true`
+query parameter so that the service can show that the caseload has switched. This is `false` by default.
+
+```javascript
+app.use(getFrontendComponents({
+  logger,
+  componentApiConfig: config.apis.componentApi,
+  dpsUrl: config.serviceUrls.digitalPrison,
+  requestOptions: { caseloadChangeNotification: true },
+}))
+```
+
 ### Shared Data
 
 An optional parameter `includeSharedData: true` can be passed into the `get` methods request options. Setting this will result in a

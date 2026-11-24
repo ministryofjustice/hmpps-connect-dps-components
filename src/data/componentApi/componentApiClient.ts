@@ -16,10 +16,14 @@ export default class ComponentApiClient extends RestClient {
     super('Component API Client', config, logger)
   }
 
-  async getComponents<T extends AvailableComponent[]>(userToken: string): Promise<ComponentsApiResponse<T>> {
+  async getComponents<T extends AvailableComponent[]>(
+    userToken: string,
+    caseloadChangeNotification = false,
+  ): Promise<ComponentsApiResponse<T>> {
+    const query = `component=header&component=footer&library=${DPS_COMPONENTS_VERSION}`
     return this.get({
       path: '/components',
-      query: `component=header&component=footer&library=${DPS_COMPONENTS_VERSION}`,
+      query: caseloadChangeNotification ? `${query}&caseloadChangeNotification=true` : query,
       headers: { 'x-user-token': userToken },
     })
   }

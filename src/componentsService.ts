@@ -14,6 +14,8 @@ import type { ConnectDpsComponentLogger } from './types/ConnectDpsComponentLogge
 export interface FrontendComponentRequestOptions extends FallbackHeaderOptions, FallbackFooterOptions {
   /** Store `SharedData` in `res.locals.feComponents.sharedData` as returned by the micro frontend components service */
   includeSharedData?: boolean
+  /** Ask MFE to notify (via the change caseload link) when the user changes caseload */
+  caseloadChangeNotification?: boolean
   /** Use fallback components without trying to load anything from micro frontend components service */
   useFallbacksByDefault?: boolean
   /**
@@ -27,6 +29,7 @@ const defaultOptions: FrontendComponentRequestOptions = {
   authUrl: 'https://sign-in.hmpps.service.justice.gov.uk/auth',
   supportUrl: 'https://www.smartsurvey.co.uk/s/43EWY0/',
   includeSharedData: false,
+  caseloadChangeNotification: false,
   useFallbacksByDefault: false,
   updateContentSecurityPolicy: true,
 }
@@ -60,7 +63,8 @@ export default class ComponentsService {
       ...defaultOptions,
       ...(requestOptions || {}),
     }
-    const { includeSharedData, useFallbacksByDefault, updateContentSecurityPolicy } = requestOptionsWithDefaults
+    const { includeSharedData, useFallbacksByDefault, updateContentSecurityPolicy, caseloadChangeNotification } =
+      requestOptionsWithDefaults
 
     return async (_req, res, next) => {
       const useFallbacks = (user: HmppsUser | null) => {
@@ -92,7 +96,10 @@ export default class ComponentsService {
       }
 
       try {
-        const { header, footer, meta } = await this.componentApiClient.getComponents(res.locals.user.token as string)
+        const { header, footer, meta } = await this.componentApiClient.getComponents(
+          res.locals.user.token as string,
+          caseloadChangeNotification,
+        )
 
         res.locals.feComponents = {
           header: header.html,

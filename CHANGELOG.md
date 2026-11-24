@@ -1,5 +1,10 @@
 # Change log
 
+## 8.1.0
+
+Adds an opt-in `caseloadChangeNotification` request option. When set to `true`, the MFE is asked to notify (via the
+change caseload link) when the user changes caseload. Defaults to `false`, so existing requests are unchanged.
+
 ## 8.0.0
 
 Drops official support for node 22 because testing pipeline no longer ensures it works.
