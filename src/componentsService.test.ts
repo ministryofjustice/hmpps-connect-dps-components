@@ -26,12 +26,14 @@ function setupApp(
   {
     user,
     includeSharedData = false,
+    caseloadChangeNotification = false,
     useFallbacksByDefault = false,
     updateContentSecurityPolicy = false,
     provideUrls = true,
   }: {
     user?: HmppsUser
     includeSharedData?: boolean
+    caseloadChangeNotification?: boolean
     useFallbacksByDefault?: boolean
     updateContentSecurityPolicy?: boolean
     provideUrls?: boolean
@@ -68,6 +70,7 @@ function setupApp(
 
   const options: FrontendComponentRequestOptions = {
     includeSharedData,
+    caseloadChangeNotification,
     useFallbacksByDefault,
     updateContentSecurityPolicy,
   }
@@ -113,6 +116,62 @@ describe('getFrontendComponents', () => {
           jsIncludes: ['header.js'],
         },
       })
+  })
+
+  describe('caseloadChangeNotification', () => {
+    it('should not request caseload change notification when the option is not set', () => {
+      componentsApi.get(`/components?component=header&component=footer&library=${version}`).reply(200, apiResponse)
+
+      return request(setupApp({ user: prisonUser }))
+        .get('/')
+        .expect(200)
+        .expect(res => {
+          expect(res.body.feComponents.header).toEqual('header')
+        })
+    })
+
+    it('should not request caseload change notification when the option is false', () => {
+      componentsApi.get(`/components?component=header&component=footer&library=${version}`).reply(200, apiResponse)
+
+      return request(setupApp({ user: prisonUser, caseloadChangeNotification: false }))
+        .get('/')
+        .expect(200)
+        .expect(res => {
+          expect(res.body.feComponents.header).toEqual('header')
+        })
+    })
+
+    it('should request caseload change notification when the option is true', () => {
+      componentsApi
+        .get(`/components?component=header&component=footer&library=${version}&caseloadChangeNotification=true`)
+        .reply(200, apiResponse)
+
+      return request(setupApp({ user: prisonUser, caseloadChangeNotification: true }))
+        .get('/')
+        .expect(200)
+        .expect(res => {
+          expect(res.body.feComponents.header).toEqual('header')
+          expect(res.body.feComponents.footer).toEqual('footer')
+        })
+    })
+
+    it('should use fallback components when the components api fails with the option set', () => {
+      componentsApi
+        .get(`/components?component=header&component=footer&library=${version}&caseloadChangeNotification=true`)
+        .times(2)
+        .reply(500)
+
+      return request(setupApp({ user: prisonUser, caseloadChangeNotification: true }))
+        .get('/')
+        .expect(200)
+        .expect(res => {
+          const $header = cheerio.load(res.body.feComponents.header)
+
+          expect($header('[data-qa="header-user-name"]').text()).toContain('E. Shannon')
+          expect(res.body.feComponents.cssIncludes).toEqual([])
+          expect(res.body.feComponents.jsIncludes).toEqual([])
+        })
+    })
   })
 
   describe('fallbacks', () => {
